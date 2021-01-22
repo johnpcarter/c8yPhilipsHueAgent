@@ -11,6 +11,7 @@ This agent uses the [Philips MeetHue API](https://developers.meethue.com)
  You will need to use the following oauth settings to obtain an oauth 2.0 token for your Hue bridge.
   
  *authorization: https://api.meethue.com/oauth2/auth?appid=cumulocity_device_manager&deviceid=c8y&device_name=c8y&response_type=code*
+ 
  *access: https://api.meethue.com/oauth2/token*
   
  You can register for a client id/secret via the developer site above and also find documentation on how to authenticate and obtain a token
