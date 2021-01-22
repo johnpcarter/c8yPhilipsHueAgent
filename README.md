@@ -7,7 +7,7 @@ This agent uses the [Philips MeetHue API](https://developers.meethue.com)
 
 **Remote authentication required by Philips Hue**
  
- You will need to use the following oauth settings to obtain an oauth 2.0 token for your Hue bridge.\
+ You will need to use the following oauth settings to obtain an oauth 2.0 token for your Hue bridge.
   
  *authorization: https://api.meethue.com/oauth2/auth?appid=cumulocity_device_manager&deviceid=c8y&device_name=c8y&response_type=code*
  *access: https://api.meethue.com/oauth2/token*
@@ -23,11 +23,9 @@ This agent uses the [Philips MeetHue API](https://developers.meethue.com)
   2) [post /bridge/{c8yIdOfBridge}/provision](./#/bridge/6060f35b-3d59-402f-a3df-19df2edece0b) to create managed objects for
   all of the lights and switches attached to the bridge. The agent on successful completion will start sending metrics and listening for operations.
   
-  
-  
   **Uploading to Cumulocity**
   Refer to [Micro Service SDK Guide](htt
-  ps://cumulocity.com/guides/microservice-sdk/introduction/) to see how to upload this agent to your \
+  ps://cumulocity.com/guides/microservice-sdk/introduction/) to see how to upload this agent to your
   Cumulocity tenant.\n\n\
   
   \**Device Models**\n\n\
