@@ -1,4 +1,5 @@
-#Philips Hue c8y Agent#
+ 
+ ##Philips Hue c8y Agent##
 
 Cumulocity micro service agent to connect and play with your Philips Hue bridge and lights.
 Developed using the [Software AG webMethods Micro Service Runtime](https://hub.docker.com/_/softwareag-webmethods-microservicesruntime) and available as a docker image.
@@ -31,6 +32,8 @@ This agent uses the [Philips MeetHue API](https://developers.meethue.com)
   
 **Device Models**
 
-  This agent also defines a managed object of type '**c8y_Device_Agent**' in Cumulocity. This models allows the iOS Cumulocity Device Management app \
-  to provision Hue Bridges without having to hard-code this API. The OAuth 2.0 client id and secret are registered using the type '**philips-api**'. You can add your own credentials to Cumulocity by posting an equivalent object to Cumulocity. The iOS app will allow the user to choose between them.\n\n\
+  This agent also defines a managed object of type '**c8y_Device_Agent**' in Cumulocity. This models allows the iOS Cumulocity Device Management app
+  to provision Hue Bridges without having to hard-code this API. The OAuth 2.0 client id and secret are registered using the type '**philips-api**'. 
+  You can add your own credentials to Cumulocity by posting an equivalent object to Cumulocity. The iOS app will allow the user to choose between them.
+  
   Device models and images for Philips hue assets are also registered via the types '**device_Supplier**' and '**device_Model**' respectively.
