@@ -67,7 +67,7 @@ You can now build your image
 
 **Preparing the Micro Service zip file for your tenant**
 
-You will need to export the newly build image as tar file and then zip it with the cumulocity.json file before uploading to your tenant
+You will need to export the newly build image as a tar file and then zip it with the provided cumulocity.json file before uploading to your tenant
 
 *$ docker save -o image.tar ${YOUR DOCKER IMAGE}*  
 *$ zip ${c8y_app_name} cumulocity.json image.tar*
@@ -97,7 +97,7 @@ If you want to run the docker image independently then set the following environ
 You can obtain your bootstrap credentials via the following api call
 
 *$ curl "https://<TENTANT_NAME>.cumulocity.com/application/applications/<APP_ID>/bootstrapUser" \
- -u '<YOUR USER>:<YOUR PASSWORD>'*
+ -u '<YOUR_USER>:<YOUR_PASSWORD>'*
 
 **Remote authentication required by Philips Hue**
 
