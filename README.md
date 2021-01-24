@@ -14,9 +14,9 @@ This source code is a webMethods Micro Service Runtime package and you will need
 
 If you have an Integration Server or Micro Service Runtime running locally for development purposes, first navigate to your packages directory;
 
-*$ cd /<SAG_HOME>/IntegrationServer/packages*
-or
-*$ cd /<SAG_HOME>/IntegrationServer/instances/<DEFAULT>/packages*
+*$ cd /<SAG_HOME>/IntegrationServer/packages*  
+or  
+*$ cd /<SAG_HOME>/IntegrationServer/instances/<DEFAULT>/packages*  
 
 If your packages directory is already under version control
 
@@ -24,12 +24,12 @@ If your packages directory is already under version control
 
 or if you are not, then simply clone the repository
 
-*$ git clone https://github.com/johnpcarter/c8yPhilipsHueAgent.git*
+*$ git clone https://github.com/johnpcarter/c8yPhilipsHueAgent.git*  
 
 Then download dependent packages
 
-*$ git clone https://github.com/johnpcarter/c8yConnector.git*\n
-*$ git clone https://github.com/johnpcarter/JcPublicTools.git*
+*$ git clone https://github.com/johnpcarter/c8yConnector.git*  
+*$ git clone https://github.com/johnpcarter/JcPublicTools.git* 
 
 Then restart your runtime server and refresh your package browser in Designer.
 
@@ -40,22 +40,22 @@ and then update Dockerfile and aclmap_sm.cnf file appropriately.
 
 cd into your directory and download the latest source code
 
-*$ cd <working dir>*\n
-*$ git clone https://github.com/johnpcarter/c8yPhilipsHueAgent.git*\n
-*$ git clone https://github.com/johnpcarter/c8yConnector.git*\n
-*$ git clone https://github.com/johnpcarter/JcPublicTools.git*\n
+*$ cd <working dir>*  
+*$ git clone https://github.com/johnpcarter/c8yPhilipsHueAgent.git*  
+*$ git clone https://github.com/johnpcarter/c8yConnector.git*  
+*$ git clone https://github.com/johnpcarter/JcPublicTools.git*  
 
 copy the permissions file from the c8yPhilipsHueAgent into your directory
 
-$ cp ./C8yPhilipsHueAgent/resources/aclmap_sm.cnf .
+$ cp ./C8yPhilipsHueAgent/resources/aclmap_sm.cnf .  
 
 Update the docker file to include the c8yPhilipsHueAgent package by copying the following line into the section 'add YOUR packages here'
 
-**ADD --chown=sagadmin ./c8yPhilipsHueAgent /opt/softwareag/IntegrationServer/packages/c8yPhilipsHueAgent*
+**ADD --chown=sagadmin ./c8yPhilipsHueAgent /opt/softwareag/IntegrationServer/packages/c8yPhilipsHueAgent* 
 
 You can now build your image
 
-**$ docker build .**
+**$ docker build .**  
 
 **Starting up the agent**
 
