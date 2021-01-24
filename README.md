@@ -1,5 +1,5 @@
  
- ##Philips Hue c8y Agent##
+ # Philips Hue c8y Agent
 
 Cumulocity micro service agent to connect and play with your Philips Hue bridge and lights.
 Developed using the [Software AG webMethods Micro Service Runtime](https://hub.docker.com/_/softwareag-webmethods-microservicesruntime) and available as a docker image.
@@ -11,21 +11,69 @@ This agent uses the [Philips MeetHue API](https://developers.meethue.com)
 This source code is a webMethods Micro Service Runtime package and you will need to first install the Software AG Micro Service Runtime or download a docker image.
 
 **local installation**
+
 If you have an Integration Server or Micro Service Runtime running locally for development purposes, first navigate to your packages directory;
 
-$ cd /<SAG_HOME>/IntegrationServer/packkages
+*$ cd /<SAG_HOME>/IntegrationServer/packages*
 or
-$ cd /<SAG_HOME>/IntegrationServer/instances/<INSTANCE>/packages
+*$ cd /<SAG_HOME>/IntegrationServer/instances/<INSTANCE>/packages*
 
 If your packages directory is already under version control
 
-$ git submodule add https://github.com/johnpcarter/c8yPhilipsHueAgent.git c8yPhilipsHueAgent
+*$ git submodule add https://github.com/johnpcarter/c8yPhilipsHueAgent.git c8yPhilipsHueAgent*
 
 or if you do have packages directory already git controlled, then simply clone the repository
 
-$ git clone https://github.com/johnpcarter/c8yPhilipsHueAgent.git
+*$ git clone https://github.com/johnpcarter/c8yPhilipsHueAgent.git*
+
+Then download dependent packages
+
+*$ git clone https://github.com/johnpcarter/c8yConnector.git*
+*$ git clone https://github.com/johnpcarter/JcPublicTools.git*
 
 Then restart your runtime server and refresh your package browser in Designer.
+
+**Docker Installation**
+
+A predefined Dockerfile template has been provided in the c8yConnector packages resources directory. It is recommended that you copy the directory
+and then update Dockerfile and aclmap_sm.cnf file appropriately.
+
+cd into your directory and download the latest source code
+
+*$ cd <working dir>*
+*$ git clone https://github.com/johnpcarter/c8yPhilipsHueAgent.git*
+*$ git clone https://github.com/johnpcarter/c8yConnector.git*
+*$ git clone https://github.com/johnpcarter/JcPublicTools.git*
+
+copy the permissions file from the c8yPhilipsHueAgent into your directory
+
+$ cp ./C8yPhilipsHueAgent/resources/aclmap_sm.cnf .
+
+Update the docker file to include the c8yPhilipsHueAgent package by copying the following line into the section 'add YOUR packages here'
+
+**ADD --chown=sagadmin ./c8yPhilipsHueAgent /opt/softwareag/IntegrationServer/packages/c8yPhilipsHueAgent*
+
+You can now build your image
+
+**$ docker build .**
+
+**Starting up the agent**
+
+The docker file can now be run as a remote agent by providing the following environment variables so that the agent can connect to your 
+cumulocity tenant.Refer to the cumulocity documentation concerning [Micro Service Runtime](https://cumulocity.com/guides/microservice-sdk/concept/#microservice-runtime)for more details.
+
+Create your application in your Cumulocity tenant and then set your bootstrap credentials as environment variables when starting up your
+docker image. You can obtain your bootstrap credentials via the following api call
+
+*$ curl "https://<TENTANT_NAME>.cumulocity.com/application/applications/<APP_ID>/bootstrapUser" \
+ -u '<YOUR USER>:<YOUR PASSWORD>'*
+
+C8Y_BOOTSTRAP_TENANT
+C8Y_BOOTSTRAP_USER
+C8Y_BOOTSTRAP_PASSWORD
+
+If you are running the agent from your own Server you can set these credentials via the a service call to '' in Designer.
+
 
 **Remote authentication required by Philips Hue**
  
