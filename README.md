@@ -16,19 +16,19 @@ If you have an Integration Server or Micro Service Runtime running locally for d
 
 *$ cd /<SAG_HOME>/IntegrationServer/packages*
 or
-*$ cd /<SAG_HOME>/IntegrationServer/instances/<INSTANCE>/packages*
+*$ cd /<SAG_HOME>/IntegrationServer/instances/<DEFAULT>/packages*
 
 If your packages directory is already under version control
 
 *$ git submodule add https://github.com/johnpcarter/c8yPhilipsHueAgent.git c8yPhilipsHueAgent*
 
-or if you do have packages directory already git controlled, then simply clone the repository
+or if you are not, then simply clone the repository
 
 *$ git clone https://github.com/johnpcarter/c8yPhilipsHueAgent.git*
 
 Then download dependent packages
 
-*$ git clone https://github.com/johnpcarter/c8yConnector.git*
+*$ git clone https://github.com/johnpcarter/c8yConnector.git*\n
 *$ git clone https://github.com/johnpcarter/JcPublicTools.git*
 
 Then restart your runtime server and refresh your package browser in Designer.
@@ -40,10 +40,10 @@ and then update Dockerfile and aclmap_sm.cnf file appropriately.
 
 cd into your directory and download the latest source code
 
-*$ cd <working dir>*
-*$ git clone https://github.com/johnpcarter/c8yPhilipsHueAgent.git*
-*$ git clone https://github.com/johnpcarter/c8yConnector.git*
-*$ git clone https://github.com/johnpcarter/JcPublicTools.git*
+*$ cd <working dir>*\n
+*$ git clone https://github.com/johnpcarter/c8yPhilipsHueAgent.git*\n
+*$ git clone https://github.com/johnpcarter/c8yConnector.git*\n
+*$ git clone https://github.com/johnpcarter/JcPublicTools.git*\n
 
 copy the permissions file from the c8yPhilipsHueAgent into your directory
 
