@@ -55,7 +55,7 @@ Update the docker file to include the c8yPhilipsHueAgent package by copying the 
 
 You can now build your image
 
-**$ docker build .**  
+*$ docker build .*  
 
 **Starting up the agent**
 
@@ -74,6 +74,26 @@ C8Y_BOOTSTRAP_PASSWORD
 
 If you are running the agent from your own Server you can set these credentials via the a service call to '' in Designer.
 
+**Uploading the Micro Service to your tenant**
+
+You will need to export the newly build image as tar file and then zip it with the cumulocity.json file before uploading to your tenant
+
+*$ docker save -o image.tar ${YOUR DOCKER IMAGE}*  
+*$ zip ${c8y_app_name} cumulocity.json image.tar*  
+
+To upload the, run the cumulocity-microservice.sh script with the appropriate parameters.
+
+$ /cumulocity-microservice.sh deploy -n ${c8y_app_name} -u ${cumulocity_user} -p ${cumulocity_pwd} -d ${cumulocity_url} -te ${cumulocity_tenant}
+
+NOTE: You will need to install the JSON processor plugin in order fo the script to run;
+
+Execute the following command to install the JSON processor on Linux systems:
+
+*$ sudo yum install jq*  
+
+For macOS, use the following command:
+
+*$ brew install jq*  
 
 **Remote authentication required by Philips Hue**
  
