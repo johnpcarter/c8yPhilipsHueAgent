@@ -63,7 +63,7 @@ You could also choose to include your MSR license file by adding the following l
 
 You can now build your image
 
-*$ docker build .*  
+*$ docker build -t ${YOUR DOCKER IMAGE} .*  
 
 **Preparing the Micro Service zip file for your tenant**
 
