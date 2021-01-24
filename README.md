@@ -55,7 +55,11 @@ $ cp ./C8yPhilipsHueAgent/resources/aclmap_sm.cnf .
 
 Update the docker file to include the c8yPhilipsHueAgent package by copying the following line into the section 'add YOUR packages here'
 
-**ADD --chown=sagadmin ./c8yPhilipsHueAgent /opt/softwareag/IntegrationServer/packages/c8yPhilipsHueAgent* 
+*ADD --chown=sagadmin ./c8yPhilipsHueAgent /opt/softwareag/IntegrationServer/packages/c8yPhilipsHueAgent*  
+
+You could also choose to include your MSR license file by adding the following line
+
+*ADD --chown=sagadmin .licenseKey.xml /opt/softwareag/IntegrationServer/config/licenseKey.xml*  
 
 You can now build your image
 
