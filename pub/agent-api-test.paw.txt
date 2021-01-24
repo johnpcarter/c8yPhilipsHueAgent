@@ -1,0 +1,67 @@
+GET http://localhost:5555/rad/jc.cumulocity:tools/envs
+
+Accept: application/json
+
+GET http://localhost:5555/rad/jc.cumulocity:tools/admin
+
+GET http://localhost:5555/rad/jc.philips:c8y/bridges/1
+
+Accept: application/json
+
+GET http://lora-dev.cumulocity.com/service/philips-hue/rad/jc.cumulocity:tools/admin
+
+Authorization: Basic am9obi5jYXJ0ZXJAc29mdHdhcmVhZy5jb206bUBuQWdlMTIz
+Accept: application/json
+
+GET http://lora-dev.cumulocity.com/service/philips-hue/rad/jc.cumulocity:tools/envs
+
+Authorization: Basic am9obi5jYXJ0ZXJAc29mdHdhcmVhZy5jb206bUBuQWdlMTIz
+Accept: application/json
+
+GET http://lora-dev.cumulocity.com/application/applications/34734/bootstrapUser
+
+Authorization: Basic am9obi5jYXJ0ZXJAc29mdHdhcmVhZy5jb206bUBuQWdlMTIz
+
+GET http://lora-dev.cumulocity.com/application/currentApplication/subscriptions
+
+Authorization: Basic dDI5Mjk1MzE1NC9zZXJ2aWNlYm9vdHN0cmFwX3BoaWxpcHMtaHVlOlRDdENvRzZRb1I2MTJyOGdPOThrZ1diT05qNGE4THVh
+
+GET http://lora-dev.cumulocity.com/service/philips-hue/rad/jc.philips:c8y/bridges/1
+
+Authorization: Basic am9obi5jYXJ0ZXJAc29mdHdhcmVhZy5jb206bUBuQWdlMTIz
+Accept: application/json
+
+GET http://lora-dev.cumulocity.com/service/philips-hue/rad/jc.philips:c8y/bridge/1714044/listener
+
+Authorization: Basic am9obi5jYXJ0ZXJAc29mdHdhcmVhZy5jb206bUBuQWdlMTIz
+Accept: application/json
+
+POST https://Lora-dev.cumulocity.com/service/philips-hue/rad/jc.philips:c8y/provision/1714044
+
+Authorization: Basic am9obi5jYXJ0ZXJAc29mdHdhcmVhZy5jb206bUBuQWdlMTIz
+Accept: application/json
+
+{
+  "token": "FGroP7ISY5ZGm8IPujEqn36sslIh"
+}
+
+GET https://Lora-dev.cumulocity.com/service/philips-hue/invoke/wm.server/ping
+
+Authorization: Basic am9obi5jYXJ0ZXJAc29mdHdhcmVhZy5jb206bUBuQWdlMTIz
+
+GET https://Lora-dev.cumulocity.com/service/philips-hue/ping
+
+Authorization: Basic am9obi5jYXJ0ZXJAc29mdHdhcmVhZy5jb206bUBuQWdlMTIz
+
+GET https://lora-dev.cumulocity.com/service/philips-hue/health
+
+Authorization: Basic am9obi5jYXJ0ZXJAc29mdHdhcmVhZy5jb206bUBuQWdlMTIz
+
+GET https://lora-dev.cumulocity.com/service/philips-hue/rad/jc.cumulocity:tools/health
+
+Authorization: Basic am9obi5jYXJ0ZXJAc29mdHdhcmVhZy5jb206bUBuQWdlMTIz
+
+DELETE http://lora-dev.cumulocity.com/service/philips-hue/rad/jc.philips:c8y/restart
+
+Authorization: Basic am9obi5jYXJ0ZXJAc29mdHdhcmVhZy5jb206bUBuQWdlMTIz
+

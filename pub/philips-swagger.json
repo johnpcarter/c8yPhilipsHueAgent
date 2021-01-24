@@ -1,0 +1,211 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Philips c8y Agent",
+    "description": "Cumulocity micro service agent to connect and play with your Philips Hue bridge and lights. \
+    Developed using the [Software AG webMethods Micro Service Runtime](https://hub.docker.com/_/softwareag-webmethods-microservicesruntime) and available as a docker image.\
+  \n\n\
+    This agent uses the [Philips MeetHue API](https://developers.meethue.com)\n\n\
+    **Remote authentication required by Philips Hue**\n\
+  \n\
+    You will need to use the following oauth settings to obtain an oauth 2.0 token for your Hue bridge.\
+  \n\
+    *authorization: https://api.meethue.com/oauth2/auth?appid=cumulocity_device_manager&deviceid=c8y&device_name=c8y&response_type=code*\n\
+    *access: https://api.meethue.com/oauth2/token*\n\
+  \n\
+    You can register for a client id/secret via the developer site above and also find documentation on how to authenticate and obtain a token\
+  \n\
+    [Remote API Quick Start Guide](https://developers.meethue.com/develop/hue-api/remote-api-quick-start-guide)\n\
+  \n\
+  **Device Onboarding**\n\n\
+  Once you have your ouath 2.0 token, you can begin the onboarding process for the bridge and its attached lights and switches.\n\
+  1) [get /bridge/{name}/definition](./#/bridge/9627a8b7-1332-401b-878e-9fa641f418e4) to query the bridge and obtain a managed object \
+  that represents the bridge device that can be posted to c8y.\n\
+  2) [post /bridge/{c8yIdOfBridge}/provision](./#/bridge/6060f35b-3d59-402f-a3df-19df2edece0b) to create managed objects for \
+  all of the lights and switches attached to the bridge. The agent on successful completion will start sending metrics and listening for operations.\n\n\
+  **Uploading to Cumulocity**\n\n\
+  Refer to [Micro Service SDK Guide](https://cumulocity.com/guides/microservice-sdk/introduction/) to see how to upload this agent to your \
+  Cumulocity tenant.\n\n\
+  **Device Models**\n\n\
+  This agent also defines a managed object of type '**c8y_Device_Agent**' in Cumulocity. This models allows the iOS Cumulocity Device Management app \
+  to provision Hue Bridges without having to hard-code this API. The OAuth 2.0 client id and secret are registered using the type '**philips-api**'. You can add your own credentials to Cumulocity by posting an equivalent object to Cumulocity. The iOS app will allow the user to choose between them.\n\n\
+  Device models and images for Philips hue assets are also registered via the types '**device_Supplier**' and '**device_Model**' respectively.
+  ",
+    "version": "v1.0.6"
+  },
+  "schemes": [
+    "https"
+  ],
+  "basePath": "/service/philips-hue/rad/jc.philips:c8y",
+  "paths": {
+    "/bridge/{name}/definition": {
+      "get": {
+        "summary": "Returns a Managed Object for your Hue bridge",
+        "tags": ["bridge"],
+        "description": "***Description***\nInterogates via Philips HUE cloud API the bridge indicated via the given ouath token and returns it as a c8y Managed Object. You can get more information about this device from here;\n\nhttps://www.philips-hue.com/en-us/explore-hue/apps/bridge\n\nThe Philips HUE API is documented here;\n\n[Philips Developer Portal](https://developers.meethue.com)\n\nThe service verifies first if the bridge has already been registered with c8y. If not it returns a managed object representing the bridge and will need to be posted to your c8y tenant. If you want to register a unique external id for the device the  bridge's unique mac address is returned in the response header labelled as 'externalid'. If the bridge has already been registered, the service will update the managed object with the latest token and user details before returning it. In this case the managed object will include the c8y internal id and not set any response headers.\n\n***External ID***\n\nAs Managed Objects do not include external id's and so the bridge's mac address is returned in the response header as 'externalid' and the value 'externalidtype' as 'mac'. The object is not saved to c8y and the caller will have to use the inventory managedobjects API of c8y to create the object in c8y if required.\n\n***Remote authentication required by Philips Hue***\n\nYou will need to use the following oauth settings to obtain an oauth 2.0 token for your Hue bridge.\n\n*authorization: https://api.meethue.com/oauth2/auth?appid=cumulocity_device_manager&deviceid=c8y&device_name=c8y&response_type=code*\n*access: https://api.meethue.com/oauth2/token*\n\nYou can register for a client id/secret via the developer site above and also find documentation on how to authenticate and obtain a token\n\n[Remote API Quick Start Guide](https://developers.meethue.com/develop/hue-api/remote-api-quick-start-guide)\n\n**Attention**\nYou will need to follow up this service with a call to the service 'jc.philips.c8y.agent_.services:provisionBridge' in order to import and start monitoring the lights and dimmer switches\nconnected to your bridge.\n\n**NOTE**\nThis service is designed to be compatible with the device provisioning model 'c8y_Device_Agent' which is used by the \"Device Management\" iOS app to\nallow different device types to be provisioned and managed without hard coding. The model is auto populated via the agent on initial startup via the service\n\n\n\n",
+        "operationId": "9627a8b7-1332-401b-878e-9fa641f418e4",
+        "parameters": [
+          {
+            "type": "string",
+            "default": "",
+            "name": "token",
+            "required": true,
+            "in": "header",
+            "description": "The OAuth 2.0 token that has been issued for a given Hue Bridge, required to both identify and authorise access to a specific bridge."
+          },
+          {
+            "type": "string",
+            "default": "",
+            "name": "name",
+            "required": true,
+            "in": "path",
+            "description": "The name to be used in Cumulocity to identify the bridge"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The body is a custom c8y [Managed Object](https://cumulocity.com/guides/reference/inventory/#managed-object) representing the Hue Bridge, The hue bridge MAC address is included in the response header identified as 'externalid'"
+          },
+          "401": {
+            "description": "Caused by an invalid OAuth 2.0 token. The HUE remote API has refused access."
+          }
+        }
+      }
+    },
+    "/bridge/{c8yIdOfBridge}/provision": {
+      "post": {
+        "summary": "Queries a Hue bridge to create devices for associated lights and switches",
+        "tags": ["bridge"],
+        "description": "Queries the Hue bridge associated with the given c8y managed object id and creates c8y devices for each light and dimmer switch found. \nThe devices are added as child devices to the hue bridge. A group is also created with the same name as the Hue bridge and sub folders are created for\neach named room/place. Light and switches are added to the appropriate sub-group. This allows Cumulocity users to view the devices in \nthe same way they would as the native hue app.\n\nYou can call this service for an already provisioned bridge in the case where there are new lights or dimmers to discover or to updated the OAuth 2.0 token cached in c8y.\n\n***Metrics***\n\nMetrics will be sent every 5 minutes following the provisioning to Cumulocity to indicate temperature and light levels. Devices will also be updated\nwith attributes reflecting the current state such as on/off (c8y_Relay) and current temperature (c8y_Temperature), light level (c8y_lightLevel) etc.\n\nAll light types are supported by the agent and a device will be created for each one by this service. The only sensors currently supported are \nthe dimmer switch and motion tracker. However the metrics for non supported sensors will be trackable as they will be logged to the bridge device.\n\n***Supported Operations***\n\nThe agent will allow you to switch lights on and off and alter the brightness level of compatible lights. \n\n**Switch light on/off**\n*POST - /devicecontrol/operations {\n\t“deviceId”: “<c8yId>”,\n\t“description”: “Turn light on/off”,\n\t“c8y_Relay”: {\n\t\t“relayState”: “OPEN|CLOSED”\n\t}\n}*\n\nPossible values are OPEN or CLOSED. \nAlso updates the device’s managed object to include the latest c8y_Relay value.\n\n**Dim light**\n*POST - /devicecontrol/operations {\n\t“deviceId”: “<c8yId>”,\n\t“description”: “Change brightness”,\n\t“c8y_Property_dimmer”: {\n\t\t“brightness”: 254\n\t}\n}*\n\nPossible values should be between 1 and 254 with 254 being the brightest\nAlso updates the device’s managed object to include the latest brightness value \n\n\n\n\n",
+        "operationId": "6060f35b-3d59-402f-a3df-19df2edece0b",
+        "parameters": [
+          {
+            "type": "string",
+            "default": "",
+            "name": "token",
+            "required": false,
+            "in": "header",
+            "description": "Overrides the current token cached in c8y, should only be provided where the existing token is no longer valid and needs to be replaced."
+          },
+          {
+            "type": "string",
+            "default": "",
+            "name": "c8yIdOfBridge",
+            "required": true,
+            "in": "path",
+            "description": "c8y internal id of the HUE bridge, you should have posted the returned managed object from the GET above and then reference the returned c8y id here."
+          },
+          {
+            "required": false,
+            "schema": {
+              "type": "c8y_Position",
+              "example": "{\"c8y_Position\": {\"lat\": 44.33232, \"lng\": 32.3434}}",
+              "default": ""
+            },
+            "in": "body",
+            "name": "body",
+            "description": "Updates bridge position with the indicated GPS position"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Hue bridge is now provisioned, all lights and dimmers are now declared in Cumulocity."
+          }
+        }
+      }
+    },
+    "/bridges/{currentPage}": {
+      "get": {
+        "summary": "Returns a list of all current recognised Hue bridges",
+        "tags": ["agent"],
+        "description": "Convenience service, returns a list of all the bridge managed objects recognised by the agent i.e. those that will be polled and metrics updated as well as operations executed.",
+        "operationId": "d88292e2-1e12-4c30-b65e-961177f506c7",
+        "responses": {
+          "default": {
+            "description": "no response description was provided for this operation"
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "default": "",
+            "name": "currentPage",
+            "required": true,
+            "in": "path",
+            "description": "Specify the page number to navigate between pages of devices, if the number of bridges is greater than page length"
+          }
+        ]
+      }
+    },
+    "/bridge/{c8yIdOfBridge}": {
+      "delete": {
+        "summary": "Deprovisions the indicate Hue bridge",
+        "tags": ["bridge"],
+        "description": "Removes all child devices for the hue bridge associated with the given internal c8y id.\nWill also stop sending metrics and listening for operation updates. However does not delete bridge's managed object",
+        "operationId": "cccb2d86-a99b-4375-9ff9-ecc1d9cdc6a3",
+        "responses": {
+          "default": {
+            "description": "no response description was provided for this operation"
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "default": "",
+            "name": "c8yIdOfBridge",
+            "required": true,
+            "in": "path",
+            "description": "c8y internal id of the HUE bridge"
+          }
+        ]
+      }
+    },
+    "/restart": {
+      "delete": {
+        "summary": "Restarts the agent",
+        "tags": ["agent"],
+        "description": "Don't use this, shouldn't be required. The Micro service should instead be restarted. Only use this if you running the agent outside of your cumulocity tenant",
+        "operationId": "3a875000-c135-49ad-8b44-9501029d799e",
+        "responses": {
+          "default": {
+            "description": "no response description was provided for this operation"
+          }
+        },
+        "parameters": []
+      }
+    },
+    "/bridge/{c8yIdOfBridge}/listener": {
+      "get": {
+        "summary": "Convenience method to determine if the agent is currently listening for operations from the given bridge",
+        "tags": ["agent"],
+        "description": "Returns true if there is currently a long polling thread associated for the indicated device. Long polling is used to ensure that the agent\ncan react to operation requests quickly that have been submitted to c8y.\n\nPending operations for each light are retrieved from c8y and processed by the service 'jc.philips.c8y.agent_._priv:processControlNotification'\nwith operations linked to the parent device i.e. their hue bridge.\n\nListeners for each bridge device are scheduled automatically when this agent is subscribed to, if the bridge is provisioned properly via the \nservice 'jc.philips.c8y.agent_.services:provisionBridge' and no connection errors have been encountered since.\n\ne.g.\n./c8y_Network/provisioned = true\n./c8y_Network/connectionError = false\n\n**NOTE**\nIndividual lights and dimmers are not polled directly, only Hue bridges are monitored for operations, hence this request should only\nbe used in reference to bridge devices.",
+        "operationId": "6f31e3d3-b561-46ba-a569-03753b01a6b4",
+        "responses": {
+          "200": {
+            "description": "Returns a single boolean value isListening, true if the agent is current awaiting pending operations, false if not."
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "default": "",
+            "name": "c8yIdOfBridge",
+            "required": true,
+            "in": "path",
+            "description": "c8y internal id of the HUE bridge"
+          }
+        ]
+      }
+    }
+  },
+  "tags": [
+      {
+        "name": "bridge",
+        "description": "Registering your Philips Hue Bridge with Cumulocity"
+      },
+      {
+        "name": "agent",
+        "description": "Support services for querying agent"
+      }
+  ]
+}

@@ -1,0 +1,3160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Values version="2.0">
+  <value name="node_type">restDescriptor</value>
+  <value name="node_subtype">restv2Descriptor</value>
+  <value name="node_nsName">jc.philips:c8y</value>
+  <value name="node_pkg">JcPhilipsHueC8yAgent</value>
+  <value name="node_comment"># C8y Philips Hue Agent #
+
+Cumulocity micro service agent to connect and play with your Philips Hue bridge and lights. 
+Developed using the Sofware AG webMethods Micro Service Runtime and available as an docker image.
+
+jcart/c8y-agent:philips-hue-latest
+
+Leverages the [Philips Hue REST API](https://developers.meethue.com) to connect to your internet connected Hue Bridge and its connected devices.
+
+##Installation##
+
+Refer to the cumulocity guide [Micro Service SDK Guide](https://www.cumulocity.com/guides/microservice-sdk/introduction) to discover how to deploy.
+
+##Usage##
+
+###Allow remote access###
+You will need to first obtain an oauth2 token for an existing philips hue owner whom has an internet connect bridge registered with their account.
+
+*authorization: https://api.meethue.com/oauth2/auth?appid=cumulocity_device_manager&amp;deviceid=c8y&amp;device_name=c8y&amp;response_type=code*
+*access: https://api.meethue.com/oauth2/token*
+
+You can register for a client id/secret via the developer site above and also find documentation on how to authenticate and obtain a token
+
+[Remote API Quick Stack Guide](https://developers.meethue.com/develop/hue-api/remote-api-quick-start-guide)
+
+###Create managed object for bridge###
+Obtain a managed object for the Hue bridge associated with the oauth2 token.
+
+[POST - /bridge/{name}/definition](https:api/#/default/40624433-52ce-488d-8c2a-771bb66ca477)
+
+You can post the returned json object to c8y directly to create a device representing your Hue bridge in c8y via
+
+POST - /inventory/managedObject
+
+The managed object includes the bridge user and oauth2 token in order to allow the agent to function independently. However this token may
+need to be refreshed from time to time. The agent leverages the attribute
+
+*/c8y_Network/WAN/password*
+
+to store the token
+
+###Provision lights and dimmers###
+
+Queries the created bridge and creates devices for each light and dimmer in Cumulocity. From this point the agent will post metrics for the given devices and sensors 
+every 5 minutes (hard-coded). It will also setup a thread for the bridge to listen for any operations.
+
+[POST /bridge/{c8yIdOfBridge}/provision](https:api/#/default/d0756861-5a86-4f41-9c2c-e162654e96cd)
+
+###Supported operations###
+
+The agent will allow you switch lights on and off and also alter the brightness level of compatible lights. It also sets equivalent attributes in the devices managed object so 
+that you can determine the current state of the device.
+
+**Switch light on/off**
+*POST - /devicecontrol/operations {
+	"deviceId": "1797769",
+  	"description": "turn light on/off",
+  	"c8y_Relay": {
+    		"relayState": "OPEN|CLOSED"
+  	}
+}*
+
+Possible values are OPEN or CLOSED.
+Updates the managed object of the device to include latest c8y_Relay value
+
+
+**Dim light**
+*POST - /devicecontrol/operations {
+	"deviceId": "",
+	"description": "Change brightness",
+	"c8y_Property_dimmer": {
+		"brightness": 254
+	}
+}*
+
+Possible values should between 1 (lowest) and 254 (full luminosity)
+Updates the managed object of the device to include latest c8y_Property_dimmer value
+
+###Deprovisioning a bridge###
+Call the following API to remove all devices related to a bridge, stop sending metrics and no longer listen for operations.
+
+[DELETE /bridge/{c8yIdOfBridge}](https:/api/#/default)
+
+###Managing connection errors###
+In the case that the agent cannot connect to the bridge it set the attribute connectionError to true in the bridges networking fragment. It also triggers an alarm and submits
+an event to Cumulocity.
+
+Most connections will be due to an expired token, in which case you will need to updated the bridge's managed object with a new token.
+
+
+</value>
+  <value name="is_public">false</value>
+  <record name="generalInfo" javaclass="com.wm.util.Values">
+    <value name="specVersion">2.0</value>
+    <value name="hostName">localhost:5555</value>
+    <value name="basePath">/rad/jc.philips:c8y</value>
+    <array name="schemes" type="value" depth="1">
+      <value>http</value>
+    </array>
+    <array name="consumes" type="value" depth="1">
+      <value>application/json</value>
+    </array>
+    <array name="produces" type="value" depth="1">
+      <value>application/json</value>
+    </array>
+  </record>
+  <record name="appInfo" javaclass="com.wm.util.Values">
+    <value name="appVersion">1.0</value>
+    <value name="description">Cumulocity Agent for Philips Hue hub &amp; lights</value>
+    <value name="title">PhilipsHueC8yAgent</value>
+    <null name="termsOfService"/>
+    <record name="contact" javaclass="com.wm.util.Values">
+      <null name="contactName"/>
+      <null name="contactUrl"/>
+      <null name="contactEmail"/>
+    </record>
+    <record name="license" javaclass="com.wm.util.Values">
+      <null name="licenseName"/>
+      <null name="licenseUrl"/>
+    </record>
+  </record>
+  <null name="sourceUri"/>
+  <null name="swaggerUrl"/>
+  <Boolean name="modifiable">true</Boolean>
+  <record name="restDefinitions" javaclass="com.wm.util.Values">
+    <record name="jc.philips.c8y.agent_.services:getBridgeDefinition.additionParents" javaclass="com.wm.util.Values">
+      <value name="name">additionParents</value>
+      <value name="nsName">jc.philips.c8y.agent_.services:getBridgeDefinition.additionParents</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="self" javaclass="com.wm.util.Values">
+          <value name="name">self</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="references" javaclass="com.wm.util.Values">
+          <value name="name">references</value>
+          <value name="source">QUERY</value>
+          <value name="type">BINARY</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">true</Boolean>
+          <value name="collectionFormat">csv</value>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_LpwanDevice" javaclass="com.wm.util.Values">
+      <value name="name">c8y_LpwanDevice_1</value>
+      <value name="nsName">jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_LpwanDevice</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="provisioned" javaclass="com.wm.util.Values">
+          <value name="name">provisioned</value>
+          <value name="source">QUERY</value>
+          <value name="type">BOOLEAN</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.cumulocity.tools.inventory.docs:Network.c8y_LAN" javaclass="com.wm.util.Values">
+      <value name="name">c8y_LAN</value>
+      <value name="nsName">jc.cumulocity.tools.inventory.docs:Network.c8y_LAN</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="ip" javaclass="com.wm.util.Values">
+          <value name="name">ip</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="name" javaclass="com.wm.util.Values">
+          <value name="name">name</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="mac" javaclass="com.wm.util.Values">
+          <value name="name">mac</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="enabled" javaclass="com.wm.util.Values">
+          <value name="name">enabled</value>
+          <value name="source">QUERY</value>
+          <value name="type">BOOLEAN</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.cumulocity.tools.inventory.docs:Network.c8y_DHCP.addressRange" javaclass="com.wm.util.Values">
+      <value name="name">addressRange</value>
+      <value name="nsName">jc.cumulocity.tools.inventory.docs:Network.c8y_DHCP.addressRange</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="start" javaclass="com.wm.util.Values">
+          <value name="name">start</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="end" javaclass="com.wm.util.Values">
+          <value name="name">end</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.cumulocity.tools.inventory.docs:ManagedObject.childAssets" javaclass="com.wm.util.Values">
+      <value name="name">childAssets_1</value>
+      <value name="nsName">jc.cumulocity.tools.inventory.docs:ManagedObject.childAssets</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="self" javaclass="com.wm.util.Values">
+          <value name="name">self</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="references" javaclass="com.wm.util.Values">
+          <value name="name">references</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">true</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.cumulocity.tools.inventory.docs:ManagedObject.childAssets.references</value>
+          <value name="definitionName">references</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_RequiredAvailability" javaclass="com.wm.util.Values">
+      <value name="name">c8y_RequiredAvailability</value>
+      <value name="nsName">jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_RequiredAvailability</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="responseInterval" javaclass="com.wm.util.Values">
+          <value name="name">responseInterval</value>
+          <value name="source">QUERY</value>
+          <value name="type">INTEGER</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_Connection" javaclass="com.wm.util.Values">
+      <value name="name">c8y_Connection</value>
+      <value name="nsName">jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_Connection</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="status" javaclass="com.wm.util.Values">
+          <value name="name">status</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.philips.c8y.agent_.services:getBridgeDefinition.childDevices.references" javaclass="com.wm.util.Values">
+      <value name="name">references</value>
+      <value name="nsName">jc.philips.c8y.agent_.services:getBridgeDefinition.childDevices.references</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="managedObject" javaclass="com.wm.util.Values">
+          <value name="name">managedObject</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.philips.c8y.agent_.services:getBridgeDefinition.childDevices.references.managedObject</value>
+          <value name="definitionName">managedObject</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.cumulocity.tools.inventory.docs:ManagedObject.deviceParents" javaclass="com.wm.util.Values">
+      <value name="name">deviceParents_1</value>
+      <value name="nsName">jc.cumulocity.tools.inventory.docs:ManagedObject.deviceParents</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="self" javaclass="com.wm.util.Values">
+          <value name="name">self</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="references" javaclass="com.wm.util.Values">
+          <value name="name">references</value>
+          <value name="source">QUERY</value>
+          <value name="type">BINARY</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">true</Boolean>
+          <value name="collectionFormat">csv</value>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.philips.c8y.agent_.services:getBridgeDefinition.deviceParents" javaclass="com.wm.util.Values">
+      <value name="name">deviceParents</value>
+      <value name="nsName">jc.philips.c8y.agent_.services:getBridgeDefinition.deviceParents</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="self" javaclass="com.wm.util.Values">
+          <value name="name">self</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="references" javaclass="com.wm.util.Values">
+          <value name="name">references</value>
+          <value name="source">QUERY</value>
+          <value name="type">BINARY</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">true</Boolean>
+          <value name="collectionFormat">csv</value>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="/bridges/{currentPage}_GET_$response" javaclass="com.wm.util.Values">
+      <value name="name">bridgescurrentPage_GET_response</value>
+      <value name="nsName">/bridges/{currentPage}_GET_$response</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="next" javaclass="com.wm.util.Values">
+          <value name="name">next</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="self" javaclass="com.wm.util.Values">
+          <value name="name">self</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="statistics" javaclass="com.wm.util.Values">
+          <value name="name">statistics</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.philips.c8y.agent_.services:registeredBridges.statistics</value>
+          <value name="definitionName">statistics</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="managedObjects" javaclass="com.wm.util.Values">
+          <value name="name">managedObjects</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">true</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.cumulocity.tools.inventory.docs:ManagedObject</value>
+          <value name="definitionName">ManagedObject</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.philips.c8y.agent_.services:getBridgeDefinition.com_cumulocity_model_Agent" javaclass="com.wm.util.Values">
+      <value name="name">com_cumulocity_model_Agent</value>
+      <value name="nsName">jc.philips.c8y.agent_.services:getBridgeDefinition.com_cumulocity_model_Agent</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+    </record>
+    <record name="jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_Firmware" javaclass="com.wm.util.Values">
+      <value name="name">c8y_Firmware</value>
+      <value name="nsName">jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_Firmware</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="version" javaclass="com.wm.util.Values">
+          <value name="name">version</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_RequiredAvailability" javaclass="com.wm.util.Values">
+      <value name="name">c8y_RequiredAvailability_1</value>
+      <value name="nsName">jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_RequiredAvailability</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="responseInterval" javaclass="com.wm.util.Values">
+          <value name="name">responseInterval</value>
+          <value name="source">QUERY</value>
+          <value name="type">INTEGER</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="/bridge/{c8yIdOfBridge}/provision_POST_$response" javaclass="com.wm.util.Values">
+      <value name="name">bridgec8yIdOfBridgeprovision_POST_response</value>
+      <value name="nsName">/bridge/{c8yIdOfBridge}/provision_POST_$response</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="c8yIdOfGroup" javaclass="com.wm.util.Values">
+          <value name="name">c8yIdOfGroup</value>
+          <value name="source">FORMDATA</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.philips.c8y.agent_.services:getBridgeDefinition.childAdditions" javaclass="com.wm.util.Values">
+      <value name="name">childAdditions</value>
+      <value name="nsName">jc.philips.c8y.agent_.services:getBridgeDefinition.childAdditions</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="self" javaclass="com.wm.util.Values">
+          <value name="name">self</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="references" javaclass="com.wm.util.Values">
+          <value name="name">references</value>
+          <value name="source">QUERY</value>
+          <value name="type">BINARY</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">true</Boolean>
+          <value name="collectionFormat">csv</value>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_IsDeviceGroup" javaclass="com.wm.util.Values">
+      <value name="name">c8y_IsDeviceGroup_1</value>
+      <value name="nsName">jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_IsDeviceGroup</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+    </record>
+    <record name="jc.cumulocity.tools.inventory.docs:ManagedObject.childAdditions" javaclass="com.wm.util.Values">
+      <value name="name">childAdditions_1</value>
+      <value name="nsName">jc.cumulocity.tools.inventory.docs:ManagedObject.childAdditions</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="self" javaclass="com.wm.util.Values">
+          <value name="name">self</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="references" javaclass="com.wm.util.Values">
+          <value name="name">references</value>
+          <value name="source">QUERY</value>
+          <value name="type">BINARY</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">true</Boolean>
+          <value name="collectionFormat">csv</value>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.cumulocity.tools.inventory.docs:ManagedObject.childAssets.references" javaclass="com.wm.util.Values">
+      <value name="name">references_2</value>
+      <value name="nsName">jc.cumulocity.tools.inventory.docs:ManagedObject.childAssets.references</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="managedObject" javaclass="com.wm.util.Values">
+          <value name="name">managedObject</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.cumulocity.tools.inventory.docs:ManagedObject.childAssets.references.managedObject</value>
+          <value name="definitionName">managedObject</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="self" javaclass="com.wm.util.Values">
+          <value name="name">self</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="/bridge/{c8yIdOfBridge}/listener_GET_$response" javaclass="com.wm.util.Values">
+      <value name="name">bridgec8yIdOfBridgelistener_GET_response</value>
+      <value name="nsName">/bridge/{c8yIdOfBridge}/listener_GET_$response</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="isListening" javaclass="com.wm.util.Values">
+          <value name="name">isListening</value>
+          <value name="source">QUERY</value>
+          <value name="type">BOOLEAN</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.cumulocity.tools.inventory.docs:Network.c8y_WAN" javaclass="com.wm.util.Values">
+      <value name="name">c8y_WAN</value>
+      <value name="nsName">jc.cumulocity.tools.inventory.docs:Network.c8y_WAN</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="ip" javaclass="com.wm.util.Values">
+          <value name="name">ip</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="username" javaclass="com.wm.util.Values">
+          <value name="name">username</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="password" javaclass="com.wm.util.Values">
+          <value name="name">password</value>
+          <value name="source">QUERY</value>
+          <value name="type">PASSWORD</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="simStatus" javaclass="com.wm.util.Values">
+          <value name="name">simStatus</value>
+          <value name="source">QUERY</value>
+          <value name="type">BOOLEAN</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="authType" javaclass="com.wm.util.Values">
+          <value name="name">authType</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="apn" javaclass="com.wm.util.Values">
+          <value name="name">apn</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.philips.c8y.agent_.services:provisionBridge.position" javaclass="com.wm.util.Values">
+      <value name="name">position</value>
+      <value name="nsName">jc.philips.c8y.agent_.services:provisionBridge.position</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="lat" javaclass="com.wm.util.Values">
+          <value name="name">lat</value>
+          <value name="source">FORMDATA</value>
+          <value name="type">DOUBLE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="lng" javaclass="com.wm.util.Values">
+          <value name="name">lng</value>
+          <value name="source">FORMDATA</value>
+          <value name="type">DOUBLE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="alt" javaclass="com.wm.util.Values">
+          <value name="name">alt</value>
+          <value name="source">FORMDATA</value>
+          <value name="type">DOUBLE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.cumulocity.tools.inventory.docs:ManagedObject.additionParents" javaclass="com.wm.util.Values">
+      <value name="name">additionParents_1</value>
+      <value name="nsName">jc.cumulocity.tools.inventory.docs:ManagedObject.additionParents</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="self" javaclass="com.wm.util.Values">
+          <value name="name">self</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="references" javaclass="com.wm.util.Values">
+          <value name="name">references</value>
+          <value name="source">QUERY</value>
+          <value name="type">BINARY</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">true</Boolean>
+          <value name="collectionFormat">csv</value>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_LpwanDevice" javaclass="com.wm.util.Values">
+      <value name="name">c8y_LpwanDevice</value>
+      <value name="nsName">jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_LpwanDevice</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="provisioned" javaclass="com.wm.util.Values">
+          <value name="name">provisioned</value>
+          <value name="source">QUERY</value>
+          <value name="type">BOOLEAN</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.philips.c8y.agent_.services:getBridgeDefinition.childDevices" javaclass="com.wm.util.Values">
+      <value name="name">childDevices</value>
+      <value name="nsName">jc.philips.c8y.agent_.services:getBridgeDefinition.childDevices</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="self" javaclass="com.wm.util.Values">
+          <value name="name">self</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="references" javaclass="com.wm.util.Values">
+          <value name="name">references</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">true</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.philips.c8y.agent_.services:getBridgeDefinition.childDevices.references</value>
+          <value name="definitionName">references</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.philips.c8y.agent_.services:getBridgeDefinition.childAssets.references.managedObject" javaclass="com.wm.util.Values">
+      <value name="name">managedObject</value>
+      <value name="nsName">jc.philips.c8y.agent_.services:getBridgeDefinition.childAssets.references.managedObject</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="name" javaclass="com.wm.util.Values">
+          <value name="name">name</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="self" javaclass="com.wm.util.Values">
+          <value name="name">self</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="id" javaclass="com.wm.util.Values">
+          <value name="name">id</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.cumulocity.tools.inventory.docs:Network.c8y_DHCP" javaclass="com.wm.util.Values">
+      <value name="name">c8y_DHCP</value>
+      <value name="nsName">jc.cumulocity.tools.inventory.docs:Network.c8y_DHCP</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="addressRange" javaclass="com.wm.util.Values">
+          <value name="name">addressRange</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.cumulocity.tools.inventory.docs:Network.c8y_DHCP.addressRange</value>
+          <value name="definitionName">addressRange</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="enabled" javaclass="com.wm.util.Values">
+          <value name="name">enabled</value>
+          <value name="source">QUERY</value>
+          <value name="type">BOOLEAN</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_Availability" javaclass="com.wm.util.Values">
+      <value name="name">c8y_Availability_1</value>
+      <value name="nsName">jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_Availability</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="lastMessage" javaclass="com.wm.util.Values">
+          <value name="name">lastMessage</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="status" javaclass="com.wm.util.Values">
+          <value name="name">status</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.cumulocity.tools.inventory.docs:ManagedObject.childAssets.references.managedObject" javaclass="com.wm.util.Values">
+      <value name="name">managedObject_3</value>
+      <value name="nsName">jc.cumulocity.tools.inventory.docs:ManagedObject.childAssets.references.managedObject</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="name" javaclass="com.wm.util.Values">
+          <value name="name">name</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="self" javaclass="com.wm.util.Values">
+          <value name="name">self</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="id" javaclass="com.wm.util.Values">
+          <value name="name">id</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_Hardware" javaclass="com.wm.util.Values">
+      <value name="name">c8y_Hardware</value>
+      <value name="nsName">jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_Hardware</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="serialNumber" javaclass="com.wm.util.Values">
+          <value name="name">serialNumber</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="model" javaclass="com.wm.util.Values">
+          <value name="name">model</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="supplier" javaclass="com.wm.util.Values">
+          <value name="name">supplier</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="revision" javaclass="com.wm.util.Values">
+          <value name="name">revision</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_Hardware" javaclass="com.wm.util.Values">
+      <value name="name">c8y_Hardware_1</value>
+      <value name="nsName">jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_Hardware</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="serialNumber" javaclass="com.wm.util.Values">
+          <value name="name">serialNumber</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="model" javaclass="com.wm.util.Values">
+          <value name="name">model</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="supplier" javaclass="com.wm.util.Values">
+          <value name="name">supplier</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="revision" javaclass="com.wm.util.Values">
+          <value name="name">revision</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="/bridge/{name}/definition_GET_$response" javaclass="com.wm.util.Values">
+      <value name="name">bridgenamedefinition_GET_response</value>
+      <value name="nsName">/bridge/{name}/definition_GET_$response</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="id" javaclass="com.wm.util.Values">
+          <value name="name">id</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="name" javaclass="com.wm.util.Values">
+          <value name="name">name</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="owner" javaclass="com.wm.util.Values">
+          <value name="name">owner</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="type" javaclass="com.wm.util.Values">
+          <value name="name">type</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="additionParents" javaclass="com.wm.util.Values">
+          <value name="name">additionParents</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.philips.c8y.agent_.services:getBridgeDefinition.additionParents</value>
+          <value name="definitionName">additionParents</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="childDevices" javaclass="com.wm.util.Values">
+          <value name="name">childDevices</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.philips.c8y.agent_.services:getBridgeDefinition.childDevices</value>
+          <value name="definitionName">childDevices</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="childAssets" javaclass="com.wm.util.Values">
+          <value name="name">childAssets</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.philips.c8y.agent_.services:getBridgeDefinition.childAssets</value>
+          <value name="definitionName">childAssets</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="creationTime" javaclass="com.wm.util.Values">
+          <value name="name">creationTime</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="lastUpdated" javaclass="com.wm.util.Values">
+          <value name="name">lastUpdated</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="childAdditions" javaclass="com.wm.util.Values">
+          <value name="name">childAdditions</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.philips.c8y.agent_.services:getBridgeDefinition.childAdditions</value>
+          <value name="definitionName">childAdditions</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="deviceParents" javaclass="com.wm.util.Values">
+          <value name="name">deviceParents</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.philips.c8y.agent_.services:getBridgeDefinition.deviceParents</value>
+          <value name="definitionName">deviceParents</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="assetParents" javaclass="com.wm.util.Values">
+          <value name="name">assetParents</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.philips.c8y.agent_.services:getBridgeDefinition.assetParents</value>
+          <value name="definitionName">assetParents</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="c8y_Notes" javaclass="com.wm.util.Values">
+          <value name="name">c8y_Notes</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="c8y_IsDeviceGroup" javaclass="com.wm.util.Values">
+          <value name="name">c8y_IsDeviceGroup</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_IsDeviceGroup</value>
+          <value name="definitionName">c8y_IsDeviceGroup</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="c8y_RequiredAvailability" javaclass="com.wm.util.Values">
+          <value name="name">c8y_RequiredAvailability</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_RequiredAvailability</value>
+          <value name="definitionName">c8y_RequiredAvailability</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="c8y_Availability" javaclass="com.wm.util.Values">
+          <value name="name">c8y_Availability</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_Availability</value>
+          <value name="definitionName">c8y_Availability</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="c8y_Connection" javaclass="com.wm.util.Values">
+          <value name="name">c8y_Connection</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_Connection</value>
+          <value name="definitionName">c8y_Connection</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="c8y_IsDevice" javaclass="com.wm.util.Values">
+          <value name="name">c8y_IsDevice</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_IsDevice</value>
+          <value name="definitionName">c8y_IsDevice</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="c8y_Firmware" javaclass="com.wm.util.Values">
+          <value name="name">c8y_Firmware</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_Firmware</value>
+          <value name="definitionName">c8y_Firmware</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="c8y_Hardware" javaclass="com.wm.util.Values">
+          <value name="name">c8y_Hardware</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_Hardware</value>
+          <value name="definitionName">c8y_Hardware</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="c8y_SupportedOperations" javaclass="com.wm.util.Values">
+          <value name="name">c8y_SupportedOperations</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">true</Boolean>
+          <value name="collectionFormat">csv</value>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="c8y_Relay" javaclass="com.wm.util.Values">
+          <value name="name">c8y_Relay</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="c8y_Position" javaclass="com.wm.util.Values">
+          <value name="name">c8y_Position</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_Position</value>
+          <value name="definitionName">c8y_Position</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="c8y_Network" javaclass="com.wm.util.Values">
+          <value name="name">c8y_Network</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.cumulocity.tools.inventory.docs:Network</value>
+          <value name="definitionName">Network</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="xC8yDeviceCategory" javaclass="com.wm.util.Values">
+          <value name="name">xC8yDeviceCategory</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="xC8yGroupCategory" javaclass="com.wm.util.Values">
+          <value name="name">xC8yGroupCategory</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="xC8yAgent" javaclass="com.wm.util.Values">
+          <value name="name">xC8yAgent</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="networkType" javaclass="com.wm.util.Values">
+          <value name="name">networkType</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="networkProvider" javaclass="com.wm.util.Values">
+          <value name="name">networkProvider</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="lnsInstanceId" javaclass="com.wm.util.Values">
+          <value name="name">lnsInstanceId</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="appEUI" javaclass="com.wm.util.Values">
+          <value name="name">appEUI</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="appKey" javaclass="com.wm.util.Values">
+          <value name="name">appKey</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="codec" javaclass="com.wm.util.Values">
+          <value name="name">codec</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="c8y_LpwanDevice" javaclass="com.wm.util.Values">
+          <value name="name">c8y_LpwanDevice</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_LpwanDevice</value>
+          <value name="definitionName">c8y_LpwanDevice</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="com_cumulocity_model_Agent" javaclass="com.wm.util.Values">
+          <value name="name">com_cumulocity_model_Agent</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.philips.c8y.agent_.services:getBridgeDefinition.com_cumulocity_model_Agent</value>
+          <value name="definitionName">com_cumulocity_model_Agent</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.cumulocity.tools.inventory.docs:ManagedObject.childDevices" javaclass="com.wm.util.Values">
+      <value name="name">childDevices_1</value>
+      <value name="nsName">jc.cumulocity.tools.inventory.docs:ManagedObject.childDevices</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="self" javaclass="com.wm.util.Values">
+          <value name="name">self</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="references" javaclass="com.wm.util.Values">
+          <value name="name">references</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">true</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.cumulocity.tools.inventory.docs:ManagedObject.childDevices.references</value>
+          <value name="definitionName">references</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_IsDevice" javaclass="com.wm.util.Values">
+      <value name="name">c8y_IsDevice</value>
+      <value name="nsName">jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_IsDevice</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+    </record>
+    <record name="jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_IsDeviceGroup" javaclass="com.wm.util.Values">
+      <value name="name">c8y_IsDeviceGroup</value>
+      <value name="nsName">jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_IsDeviceGroup</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+    </record>
+    <record name="jc.cumulocity.tools.inventory.docs:ManagedObject.childDevices.references" javaclass="com.wm.util.Values">
+      <value name="name">references_3</value>
+      <value name="nsName">jc.cumulocity.tools.inventory.docs:ManagedObject.childDevices.references</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="managedObject" javaclass="com.wm.util.Values">
+          <value name="name">managedObject</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.cumulocity.tools.inventory.docs:ManagedObject.childDevices.references.managedObject</value>
+          <value name="definitionName">managedObject</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.cumulocity.tools.inventory.docs:Network" javaclass="com.wm.util.Values">
+      <value name="name">Network</value>
+      <value name="nsName">jc.cumulocity.tools.inventory.docs:Network</value>
+      <Boolean name="autoGenerated">false</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="type" javaclass="com.wm.util.Values">
+          <value name="name">type</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="provider" javaclass="com.wm.util.Values">
+          <value name="name">provider</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="instance" javaclass="com.wm.util.Values">
+          <value name="name">instance</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="provisioned" javaclass="com.wm.util.Values">
+          <value name="name">provisioned</value>
+          <value name="source">QUERY</value>
+          <value name="type">BOOLEAN</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="connectionError" javaclass="com.wm.util.Values">
+          <value name="name">connectionError</value>
+          <value name="source">QUERY</value>
+          <value name="type">BOOLEAN</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="networkRef" javaclass="com.wm.util.Values">
+          <value name="name">networkRef</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="c8y_LAN" javaclass="com.wm.util.Values">
+          <value name="name">c8y_LAN</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.cumulocity.tools.inventory.docs:Network.c8y_LAN</value>
+          <value name="definitionName">c8y_LAN</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="c8y_WAN" javaclass="com.wm.util.Values">
+          <value name="name">c8y_WAN</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.cumulocity.tools.inventory.docs:Network.c8y_WAN</value>
+          <value name="definitionName">c8y_WAN</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="c8y_DHCP" javaclass="com.wm.util.Values">
+          <value name="name">c8y_DHCP</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.cumulocity.tools.inventory.docs:Network.c8y_DHCP</value>
+          <value name="definitionName">c8y_DHCP</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.cumulocity.tools.inventory.docs:ManagedObject.childDevices.references.managedObject" javaclass="com.wm.util.Values">
+      <value name="name">managedObject_2</value>
+      <value name="nsName">jc.cumulocity.tools.inventory.docs:ManagedObject.childDevices.references.managedObject</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="name" javaclass="com.wm.util.Values">
+          <value name="name">name</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="self" javaclass="com.wm.util.Values">
+          <value name="name">self</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="id" javaclass="com.wm.util.Values">
+          <value name="name">id</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.philips.c8y.agent_.services:registeredBridges.statistics" javaclass="com.wm.util.Values">
+      <value name="name">statistics</value>
+      <value name="nsName">jc.philips.c8y.agent_.services:registeredBridges.statistics</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="currentPage" javaclass="com.wm.util.Values">
+          <value name="name">currentPage</value>
+          <value name="source">QUERY</value>
+          <value name="type">LONG</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="pageSize" javaclass="com.wm.util.Values">
+          <value name="name">pageSize</value>
+          <value name="source">QUERY</value>
+          <value name="type">LONG</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.philips.c8y.agent_.services:getBridgeDefinition.assetParents" javaclass="com.wm.util.Values">
+      <value name="name">assetParents</value>
+      <value name="nsName">jc.philips.c8y.agent_.services:getBridgeDefinition.assetParents</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="self" javaclass="com.wm.util.Values">
+          <value name="name">self</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="references" javaclass="com.wm.util.Values">
+          <value name="name">references</value>
+          <value name="source">QUERY</value>
+          <value name="type">BINARY</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">true</Boolean>
+          <value name="collectionFormat">csv</value>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.philips.c8y.agent_.services:getBridgeDefinition.childAssets.references" javaclass="com.wm.util.Values">
+      <value name="name">references_1</value>
+      <value name="nsName">jc.philips.c8y.agent_.services:getBridgeDefinition.childAssets.references</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="managedObject" javaclass="com.wm.util.Values">
+          <value name="name">managedObject</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.philips.c8y.agent_.services:getBridgeDefinition.childAssets.references.managedObject</value>
+          <value name="definitionName">managedObject</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="self" javaclass="com.wm.util.Values">
+          <value name="name">self</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.philips.c8y.agent_.services:getBridgeDefinition.childAssets" javaclass="com.wm.util.Values">
+      <value name="name">childAssets</value>
+      <value name="nsName">jc.philips.c8y.agent_.services:getBridgeDefinition.childAssets</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="self" javaclass="com.wm.util.Values">
+          <value name="name">self</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="references" javaclass="com.wm.util.Values">
+          <value name="name">references</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">true</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.philips.c8y.agent_.services:getBridgeDefinition.childAssets.references</value>
+          <value name="definitionName">references</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_IsDevice" javaclass="com.wm.util.Values">
+      <value name="name">c8y_IsDevice_1</value>
+      <value name="nsName">jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_IsDevice</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+    </record>
+    <record name="jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_Position" javaclass="com.wm.util.Values">
+      <value name="name">c8y_Position</value>
+      <value name="nsName">jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_Position</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="lat" javaclass="com.wm.util.Values">
+          <value name="name">lat</value>
+          <value name="source">QUERY</value>
+          <value name="type">DOUBLE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="lng" javaclass="com.wm.util.Values">
+          <value name="name">lng</value>
+          <value name="source">QUERY</value>
+          <value name="type">DOUBLE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="alt" javaclass="com.wm.util.Values">
+          <value name="name">alt</value>
+          <value name="source">QUERY</value>
+          <value name="type">DOUBLE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_Firmware" javaclass="com.wm.util.Values">
+      <value name="name">c8y_Firmware_1</value>
+      <value name="nsName">jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_Firmware</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="version" javaclass="com.wm.util.Values">
+          <value name="name">version</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_Position" javaclass="com.wm.util.Values">
+      <value name="name">c8y_Position_1</value>
+      <value name="nsName">jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_Position</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="lat" javaclass="com.wm.util.Values">
+          <value name="name">lat</value>
+          <value name="source">QUERY</value>
+          <value name="type">DOUBLE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="lng" javaclass="com.wm.util.Values">
+          <value name="name">lng</value>
+          <value name="source">QUERY</value>
+          <value name="type">DOUBLE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="alt" javaclass="com.wm.util.Values">
+          <value name="name">alt</value>
+          <value name="source">QUERY</value>
+          <value name="type">DOUBLE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.cumulocity.tools.inventory.docs:ManagedObject" javaclass="com.wm.util.Values">
+      <value name="name">ManagedObject</value>
+      <value name="nsName">jc.cumulocity.tools.inventory.docs:ManagedObject</value>
+      <Boolean name="autoGenerated">false</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <value name="description">generated by webMethods</value>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="id" javaclass="com.wm.util.Values">
+          <value name="name">id</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="name" javaclass="com.wm.util.Values">
+          <value name="name">name</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="owner" javaclass="com.wm.util.Values">
+          <value name="name">owner</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="type" javaclass="com.wm.util.Values">
+          <value name="name">type</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="additionParents" javaclass="com.wm.util.Values">
+          <value name="name">additionParents</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.cumulocity.tools.inventory.docs:ManagedObject.additionParents</value>
+          <value name="definitionName">additionParents</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="childDevices" javaclass="com.wm.util.Values">
+          <value name="name">childDevices</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.cumulocity.tools.inventory.docs:ManagedObject.childDevices</value>
+          <value name="definitionName">childDevices</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="childAssets" javaclass="com.wm.util.Values">
+          <value name="name">childAssets</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.cumulocity.tools.inventory.docs:ManagedObject.childAssets</value>
+          <value name="definitionName">childAssets</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="creationTime" javaclass="com.wm.util.Values">
+          <value name="name">creationTime</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="lastUpdated" javaclass="com.wm.util.Values">
+          <value name="name">lastUpdated</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="childAdditions" javaclass="com.wm.util.Values">
+          <value name="name">childAdditions</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.cumulocity.tools.inventory.docs:ManagedObject.childAdditions</value>
+          <value name="definitionName">childAdditions</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="deviceParents" javaclass="com.wm.util.Values">
+          <value name="name">deviceParents</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.cumulocity.tools.inventory.docs:ManagedObject.deviceParents</value>
+          <value name="definitionName">deviceParents</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="assetParents" javaclass="com.wm.util.Values">
+          <value name="name">assetParents</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.cumulocity.tools.inventory.docs:ManagedObject.assetParents</value>
+          <value name="definitionName">assetParents</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="c8y_Notes" javaclass="com.wm.util.Values">
+          <value name="name">c8y_Notes</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="c8y_IsDeviceGroup" javaclass="com.wm.util.Values">
+          <value name="name">c8y_IsDeviceGroup</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_IsDeviceGroup</value>
+          <value name="definitionName">c8y_IsDeviceGroup</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="c8y_RequiredAvailability" javaclass="com.wm.util.Values">
+          <value name="name">c8y_RequiredAvailability</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_RequiredAvailability</value>
+          <value name="definitionName">c8y_RequiredAvailability</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="c8y_Availability" javaclass="com.wm.util.Values">
+          <value name="name">c8y_Availability</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_Availability</value>
+          <value name="definitionName">c8y_Availability</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="c8y_Connection" javaclass="com.wm.util.Values">
+          <value name="name">c8y_Connection</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_Connection</value>
+          <value name="definitionName">c8y_Connection</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="c8y_IsDevice" javaclass="com.wm.util.Values">
+          <value name="name">c8y_IsDevice</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_IsDevice</value>
+          <value name="definitionName">c8y_IsDevice</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="c8y_Firmware" javaclass="com.wm.util.Values">
+          <value name="name">c8y_Firmware</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_Firmware</value>
+          <value name="definitionName">c8y_Firmware</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="c8y_Hardware" javaclass="com.wm.util.Values">
+          <value name="name">c8y_Hardware</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_Hardware</value>
+          <value name="definitionName">c8y_Hardware</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="c8y_SupportedOperations" javaclass="com.wm.util.Values">
+          <value name="name">c8y_SupportedOperations</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">true</Boolean>
+          <value name="collectionFormat">csv</value>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="c8y_Relay" javaclass="com.wm.util.Values">
+          <value name="name">c8y_Relay</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="c8y_Position" javaclass="com.wm.util.Values">
+          <value name="name">c8y_Position</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_Position</value>
+          <value name="definitionName">c8y_Position</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="c8y_Network" javaclass="com.wm.util.Values">
+          <value name="name">c8y_Network</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.cumulocity.tools.inventory.docs:Network</value>
+          <value name="definitionName">Network</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="xC8yDeviceCategory" javaclass="com.wm.util.Values">
+          <value name="name">xC8yDeviceCategory</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="xC8yGroupCategory" javaclass="com.wm.util.Values">
+          <value name="name">xC8yGroupCategory</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="xC8yAgent" javaclass="com.wm.util.Values">
+          <value name="name">xC8yAgent</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="networkType" javaclass="com.wm.util.Values">
+          <value name="name">networkType</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="networkProvider" javaclass="com.wm.util.Values">
+          <value name="name">networkProvider</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="lnsInstanceId" javaclass="com.wm.util.Values">
+          <value name="name">lnsInstanceId</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="appEUI" javaclass="com.wm.util.Values">
+          <value name="name">appEUI</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="appKey" javaclass="com.wm.util.Values">
+          <value name="name">appKey</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="codec" javaclass="com.wm.util.Values">
+          <value name="name">codec</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="c8y_LpwanDevice" javaclass="com.wm.util.Values">
+          <value name="name">c8y_LpwanDevice</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">false</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_LpwanDevice</value>
+          <value name="definitionName">c8y_LpwanDevice</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+        <record name="com_cumulocity_model_Agent" javaclass="com.wm.util.Values">
+          <value name="name">com_cumulocity_model_Agent</value>
+          <value name="source">BODY</value>
+          <value name="type">REFERENCE</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <value name="refDefinition">jc.cumulocity.tools.inventory.docs:ManagedObject.com_cumulocity_model_Agent</value>
+          <value name="definitionName">com_cumulocity_model_Agent</value>
+          <Boolean name="includeInRad">false</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.philips.c8y.agent_.services:getBridgeDefinition.childDevices.references.managedObject" javaclass="com.wm.util.Values">
+      <value name="name">managedObject_1</value>
+      <value name="nsName">jc.philips.c8y.agent_.services:getBridgeDefinition.childDevices.references.managedObject</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="name" javaclass="com.wm.util.Values">
+          <value name="name">name</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="self" javaclass="com.wm.util.Values">
+          <value name="name">self</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="id" javaclass="com.wm.util.Values">
+          <value name="name">id</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.cumulocity.tools.inventory.docs:ManagedObject.assetParents" javaclass="com.wm.util.Values">
+      <value name="name">assetParents_1</value>
+      <value name="nsName">jc.cumulocity.tools.inventory.docs:ManagedObject.assetParents</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="self" javaclass="com.wm.util.Values">
+          <value name="name">self</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="references" javaclass="com.wm.util.Values">
+          <value name="name">references</value>
+          <value name="source">QUERY</value>
+          <value name="type">BINARY</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">true</Boolean>
+          <value name="collectionFormat">csv</value>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_Availability" javaclass="com.wm.util.Values">
+      <value name="name">c8y_Availability</value>
+      <value name="nsName">jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_Availability</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="lastMessage" javaclass="com.wm.util.Values">
+          <value name="name">lastMessage</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+        <record name="status" javaclass="com.wm.util.Values">
+          <value name="name">status</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_Connection" javaclass="com.wm.util.Values">
+      <value name="name">c8y_Connection_1</value>
+      <value name="nsName">jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_Connection</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+      <record name="parameters" javaclass="com.wm.util.Values">
+        <record name="status" javaclass="com.wm.util.Values">
+          <value name="name">status</value>
+          <value name="source">QUERY</value>
+          <value name="type">STRING</value>
+          <null name="description"/>
+          <Boolean name="isRequired">true</Boolean>
+          <Boolean name="isArray">false</Boolean>
+          <null name="defaultValue"/>
+          <null name="refDefinition"/>
+          <null name="definitionName"/>
+          <Boolean name="includeInRad">true</Boolean>
+        </record>
+      </record>
+    </record>
+    <record name="jc.cumulocity.tools.inventory.docs:ManagedObject.com_cumulocity_model_Agent" javaclass="com.wm.util.Values">
+      <value name="name">com_cumulocity_model_Agent_1</value>
+      <value name="nsName">jc.cumulocity.tools.inventory.docs:ManagedObject.com_cumulocity_model_Agent</value>
+      <Boolean name="autoGenerated">true</Boolean>
+      <Boolean name="recursive">false</Boolean>
+      <null name="description"/>
+    </record>
+  </record>
+  <record name="restResources" javaclass="com.wm.util.Values">
+    <record name="/bridge/{name}/definition" javaclass="com.wm.util.Values">
+      <value name="nsName">jc.philips.c8y:agent</value>
+      <value name="path">/bridge/{name}/definition</value>
+      <null name="suffix"/>
+      <record name="operations" javaclass="com.wm.util.Values">
+        <record name="GET" javaclass="com.wm.util.Values">
+          <value name="operationType">GET</value>
+          <value name="nsName">/bridge/{name}/definition_GET</value>
+          <value name="description">##Description##
+Interogates via Philips HUE cloud API the [Hue bridge](https://www.philips-hue.com/en-us/explore-hue/apps/bridge) indicated via the given ouath token and returns it as a c8y Managed Object. 
+
+The Philips HUE API is documented here;
+
+[Philips Developer Portal](https://developers.meethue.com)
+
+The service verifies first if the bridge has already been registered with c8y. If not it returns a managed object representing the bridge and will need to be posted to your c8y tenant. 
+If you want to register a unique external id for the device the  bridge's unique mac address is returned in the response header labeled as 'externalid'. If the bridge has already been
+registered, the service will update the managed object with the latest token and user details before returning it. In this case the managed object will include the c8y internal id and not set any 
+response headers.
+
+##External ID##
+As Managed Objects do not include external id's and so the bridge's mac address is 
+returned in the response header as 'externalid' and the value 'externalidtype' as 'mac'. The object is not saved to c8y and the caller will have to use the inventory/managedobjects API 
+of c8y to create the object in c8y if required.
+
+##Remote authentication required by Philips Hue##
+
+You will need to use the following oauth settings to obtain an oauth 2.0 token for your Hue bridge.
+
+*authorization: https://api.meethue.com/oauth2/auth?appid=cumulocity_device_manager&amp;deviceid=c8y&amp;device_name=c8y&amp;response_type=code*
+*access: https://api.meethue.com/oauth2/token*
+
+You can register for a client id/secret via the developer site above and also find documentation on how to authenticate and obtain a token
+
+[Remote API Quick Stack Guide](https://developers.meethue.com/develop/hue-api/remote-api-quick-start-guide)
+
+**Attention**
+You will need to follow up this service with a call to the service 'jc.philips.c8y.agent_.services:provisionBridge' in order to import and start monitoring the lights and dimmer switches
+connected to your bridge.
+
+**NOTE**
+This service is designed to be compatible with the device provisioning model 'c8y_Device_Agent' which is used by the "Device Management" iOS app to
+allow different device types to be provisioned and managed without hard coding. The model is auto populated via the agent on initial startup via the service
+
+
+
+</value>
+          <array name="requiredDefinitions" type="value" depth="1">
+            <value>jc.philips.c8y.agent_.services:getBridgeDefinition.deviceParents</value>
+            <value>jc.philips.c8y.agent_.services:getBridgeDefinition.additionParents</value>
+            <value>jc.philips.c8y.agent_.services:getBridgeDefinition.childAssets</value>
+            <value>jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_LpwanDevice</value>
+            <value>jc.philips.c8y.agent_.services:getBridgeDefinition.childDevices</value>
+            <value>jc.philips.c8y.agent_.services:getBridgeDefinition.com_cumulocity_model_Agent</value>
+            <value>jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_Firmware</value>
+            <value>jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_Hardware</value>
+            <value>jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_Position</value>
+            <value>jc.philips.c8y.agent_.services:getBridgeDefinition.childAdditions</value>
+            <value>jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_IsDevice</value>
+            <value>jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_IsDeviceGroup</value>
+            <value>jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_RequiredAvailability</value>
+            <value>jc.cumulocity.tools.inventory.docs:Network</value>
+            <value>jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_Connection</value>
+            <value>jc.philips.c8y.agent_.services:getBridgeDefinition.c8y_Availability</value>
+            <value>jc.philips.c8y.agent_.services:getBridgeDefinition.assetParents</value>
+            <value>jc.philips.c8y.agent_.services:getBridgeDefinition.childDevices.references</value>
+            <value>jc.philips.c8y.agent_.services:getBridgeDefinition.childAssets.references</value>
+            <value>jc.cumulocity.tools.inventory.docs:Network.c8y_LAN</value>
+            <value>jc.cumulocity.tools.inventory.docs:Network.c8y_DHCP</value>
+            <value>jc.cumulocity.tools.inventory.docs:Network.c8y_WAN</value>
+            <value>jc.philips.c8y.agent_.services:getBridgeDefinition.childAssets.references.managedObject</value>
+            <value>jc.philips.c8y.agent_.services:getBridgeDefinition.childDevices.references.managedObject</value>
+            <value>jc.cumulocity.tools.inventory.docs:Network.c8y_DHCP.addressRange</value>
+            <value>/bridge/{name}/definition_GET_$response</value>
+          </array>
+          <record name="parameters" javaclass="com.wm.util.Values">
+            <record name="tenant" javaclass="com.wm.util.Values">
+              <value name="name">tenant</value>
+              <value name="source">QUERY</value>
+              <value name="type">STRING</value>
+              <null name="description"/>
+              <Boolean name="isRequired">false</Boolean>
+              <Boolean name="isArray">false</Boolean>
+              <null name="defaultValue"/>
+              <null name="refDefinition"/>
+              <null name="definitionName"/>
+              <Boolean name="includeInRad">true</Boolean>
+            </record>
+            <record name="name" javaclass="com.wm.util.Values">
+              <value name="name">name</value>
+              <value name="source">PATH</value>
+              <value name="type">STRING</value>
+              <null name="description"/>
+              <Boolean name="isRequired">true</Boolean>
+              <Boolean name="isArray">false</Boolean>
+              <null name="defaultValue"/>
+              <null name="refDefinition"/>
+              <null name="definitionName"/>
+              <Boolean name="includeInRad">true</Boolean>
+            </record>
+            <record name="token" javaclass="com.wm.util.Values">
+              <value name="name">token</value>
+              <value name="source">HEADER</value>
+              <value name="type">STRING</value>
+              <null name="description"/>
+              <Boolean name="isRequired">true</Boolean>
+              <Boolean name="isArray">false</Boolean>
+              <null name="defaultValue"/>
+              <null name="refDefinition"/>
+              <null name="definitionName"/>
+              <Boolean name="includeInRad">true</Boolean>
+            </record>
+          </record>
+          <record name="responseParam" javaclass="com.wm.util.Values">
+            <value name="name">reseponse</value>
+            <value name="source">BODY</value>
+            <value name="type">REFERENCE</value>
+            <null name="description"/>
+            <Boolean name="isRequired">true</Boolean>
+            <Boolean name="isArray">false</Boolean>
+            <null name="defaultValue"/>
+            <value name="refDefinition">/bridge/{name}/definition_GET_$response</value>
+            <null name="definitionName"/>
+            <Boolean name="includeInRad">true</Boolean>
+          </record>
+          <record name="responses" javaclass="com.wm.util.Values">
+            <record name="200" javaclass="com.wm.util.Values">
+              <value name="statusCode">200</value>
+              <value name="description">OK</value>
+              <Boolean name="returnOutput">true</Boolean>
+            </record>
+            <record name="401" javaclass="com.wm.util.Values">
+              <value name="statusCode">401</value>
+              <value name="description">Access Denied</value>
+              <Boolean name="returnOutput">false</Boolean>
+            </record>
+          </record>
+        </record>
+      </record>
+    </record>
+    <record name="/bridge/{c8yIdOfBridge}/provision" javaclass="com.wm.util.Values">
+      <value name="nsName">jc.philips.c8y:agent</value>
+      <value name="path">/bridge/{c8yIdOfBridge}/provision</value>
+      <null name="suffix"/>
+      <record name="operations" javaclass="com.wm.util.Values">
+        <record name="POST" javaclass="com.wm.util.Values">
+          <value name="operationType">POST</value>
+          <value name="nsName">/bridge/{c8yIdOfBridge}/provision_POST</value>
+          <value name="description">Queries the Hue bridge associated with the given c8y managed object id and creates c8y devices for each light and dimmer switch found. 
+The devices are added as child devices to the hue bridge. A group is also created with the same name as the Hue bridge and sub folders are created for
+each named room/place. Light and switches are added to the appropriate sub-group. This allows Cumulocity users to view the devices in 
+the same way they would as the native hue app.
+
+###Metrics###
+
+Metrics will be sent every 5 minutes following the provisioning to Cumulocity to indicate temperature and light levels. Devices will also be updated
+with attributes reflecting the current state such as on/off (c8y_Relay) and current temperature (c8y_Temperature), light level (c8y_lightLevel) etc.
+
+All light types are supported by the agent and a device will be created for each one following this service. The only sensors currently supported are 
+the dimmer switch and motion tracker. However the metrics for non supported sensors will be trackable as they will be logged to the bridge device.
+
+###Supported Operations###
+
+The agent will allow you to switch lights on and off and alter the brightness level of compatible lights. 
+
+**Switch light on/off**
+*POST - /devicecontrol/operations {
+	“deviceId”: “&lt;c8yId&gt;”,
+	“description”: “Turn light on/off”,
+	“c8y_Relay”: {
+		“relayState”: “OPEN|CLOSED”
+	}
+}*
+
+Possible values are OPEN or CLOSED. 
+Also updates the device’s managed object to include the latest c8y_Relay value.
+
+**Dim light**
+*POST - /devicecontrol/operations {
+	“deviceId”: “&lt;c8yId&gt;”,
+	“description”: “Change brightness”,
+	“c8y_Property_dimmer”: {
+		“brightness”: 254
+	}
+}*
+
+Possible values should be between 1 and 254 with 254 being the brightest
+Also updates the device’s managed object to include the latest brightness value 
+
+
+
+
+</value>
+          <array name="requiredDefinitions" type="value" depth="1">
+            <value>jc.philips.c8y.agent_.services:provisionBridge.position</value>
+            <value>/bridge/{c8yIdOfBridge}/provision_POST_$response</value>
+          </array>
+          <record name="parameters" javaclass="com.wm.util.Values">
+            <record name="tenant" javaclass="com.wm.util.Values">
+              <value name="name">tenant</value>
+              <value name="source">HEADER</value>
+              <value name="type">STRING</value>
+              <null name="description"/>
+              <Boolean name="isRequired">false</Boolean>
+              <Boolean name="isArray">false</Boolean>
+              <null name="defaultValue"/>
+              <null name="refDefinition"/>
+              <null name="definitionName"/>
+              <Boolean name="includeInRad">true</Boolean>
+            </record>
+            <record name="c8yIdOfBridge" javaclass="com.wm.util.Values">
+              <value name="name">c8yIdOfBridge</value>
+              <value name="source">PATH</value>
+              <value name="type">STRING</value>
+              <null name="description"/>
+              <Boolean name="isRequired">true</Boolean>
+              <Boolean name="isArray">false</Boolean>
+              <null name="defaultValue"/>
+              <null name="refDefinition"/>
+              <null name="definitionName"/>
+              <Boolean name="includeInRad">true</Boolean>
+            </record>
+            <record name="token" javaclass="com.wm.util.Values">
+              <value name="name">token</value>
+              <value name="source">HEADER</value>
+              <value name="type">STRING</value>
+              <null name="description"/>
+              <Boolean name="isRequired">false</Boolean>
+              <Boolean name="isArray">false</Boolean>
+              <null name="defaultValue"/>
+              <null name="refDefinition"/>
+              <null name="definitionName"/>
+              <Boolean name="includeInRad">true</Boolean>
+            </record>
+            <record name="position" javaclass="com.wm.util.Values">
+              <value name="name">position</value>
+              <value name="source">BODY</value>
+              <value name="type">REFERENCE</value>
+              <null name="description"/>
+              <Boolean name="isRequired">false</Boolean>
+              <Boolean name="isArray">false</Boolean>
+              <null name="defaultValue"/>
+              <value name="refDefinition">jc.philips.c8y.agent_.services:provisionBridge.position</value>
+              <value name="definitionName">position</value>
+              <Boolean name="includeInRad">true</Boolean>
+            </record>
+          </record>
+          <record name="responseParam" javaclass="com.wm.util.Values">
+            <value name="name">reseponse</value>
+            <value name="source">BODY</value>
+            <value name="type">REFERENCE</value>
+            <null name="description"/>
+            <Boolean name="isRequired">true</Boolean>
+            <Boolean name="isArray">false</Boolean>
+            <null name="defaultValue"/>
+            <value name="refDefinition">/bridge/{c8yIdOfBridge}/provision_POST_$response</value>
+            <null name="definitionName"/>
+            <Boolean name="includeInRad">true</Boolean>
+          </record>
+          <record name="responses" javaclass="com.wm.util.Values">
+            <record name="200" javaclass="com.wm.util.Values">
+              <value name="statusCode">200</value>
+              <value name="description">OK</value>
+              <Boolean name="returnOutput">true</Boolean>
+            </record>
+            <record name="401" javaclass="com.wm.util.Values">
+              <value name="statusCode">401</value>
+              <value name="description">Access Denied</value>
+              <Boolean name="returnOutput">false</Boolean>
+            </record>
+          </record>
+        </record>
+      </record>
+    </record>
+    <record name="/bridges/{currentPage}" javaclass="com.wm.util.Values">
+      <value name="nsName">jc.philips.c8y:agent</value>
+      <value name="path">/bridges/{currentPage}</value>
+      <null name="suffix"/>
+      <record name="operations" javaclass="com.wm.util.Values">
+        <record name="GET" javaclass="com.wm.util.Values">
+          <value name="operationType">GET</value>
+          <value name="nsName">/bridges/{currentPage}_GET</value>
+          <value name="description">Convenience service, returns a list of all the bridge managed objects recognised by the agent i.e. those that will be polled and metrics updated as well as operations executed.</value>
+          <array name="requiredDefinitions" type="value" depth="1">
+            <value>jc.cumulocity.tools.inventory.docs:ManagedObject</value>
+            <value>jc.philips.c8y.agent_.services:registeredBridges.statistics</value>
+            <value>jc.cumulocity.tools.inventory.docs:ManagedObject.deviceParents</value>
+            <value>jc.cumulocity.tools.inventory.docs:ManagedObject.additionParents</value>
+            <value>jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_LpwanDevice</value>
+            <value>jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_IsDevice</value>
+            <value>jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_Availability</value>
+            <value>jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_RequiredAvailability</value>
+            <value>jc.cumulocity.tools.inventory.docs:ManagedObject.childAssets</value>
+            <value>jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_Firmware</value>
+            <value>jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_Hardware</value>
+            <value>jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_IsDeviceGroup</value>
+            <value>jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_Position</value>
+            <value>jc.cumulocity.tools.inventory.docs:ManagedObject.childDevices</value>
+            <value>jc.cumulocity.tools.inventory.docs:ManagedObject.childAdditions</value>
+            <value>jc.cumulocity.tools.inventory.docs:Network</value>
+            <value>jc.cumulocity.tools.inventory.docs:ManagedObject.assetParents</value>
+            <value>jc.cumulocity.tools.inventory.docs:ManagedObject.c8y_Connection</value>
+            <value>jc.cumulocity.tools.inventory.docs:ManagedObject.com_cumulocity_model_Agent</value>
+            <value>jc.cumulocity.tools.inventory.docs:ManagedObject.childAssets.references</value>
+            <value>jc.cumulocity.tools.inventory.docs:ManagedObject.childDevices.references</value>
+            <value>jc.cumulocity.tools.inventory.docs:ManagedObject.childDevices.references.managedObject</value>
+            <value>jc.cumulocity.tools.inventory.docs:ManagedObject.childAssets.references.managedObject</value>
+            <value>/bridges/{currentPage}_GET_$response</value>
+          </array>
+          <record name="parameters" javaclass="com.wm.util.Values">
+            <record name="currentPage" javaclass="com.wm.util.Values">
+              <value name="name">currentPage</value>
+              <value name="source">PATH</value>
+              <value name="type">STRING</value>
+              <null name="description"/>
+              <Boolean name="isRequired">true</Boolean>
+              <Boolean name="isArray">false</Boolean>
+              <null name="defaultValue"/>
+              <null name="refDefinition"/>
+              <null name="definitionName"/>
+              <Boolean name="includeInRad">true</Boolean>
+            </record>
+          </record>
+          <record name="responseParam" javaclass="com.wm.util.Values">
+            <value name="name">reseponse</value>
+            <value name="source">BODY</value>
+            <value name="type">REFERENCE</value>
+            <null name="description"/>
+            <Boolean name="isRequired">true</Boolean>
+            <Boolean name="isArray">false</Boolean>
+            <null name="defaultValue"/>
+            <value name="refDefinition">/bridges/{currentPage}_GET_$response</value>
+            <null name="definitionName"/>
+            <Boolean name="includeInRad">true</Boolean>
+          </record>
+          <record name="responses" javaclass="com.wm.util.Values">
+            <record name="200" javaclass="com.wm.util.Values">
+              <value name="statusCode">200</value>
+              <value name="description">OK</value>
+              <Boolean name="returnOutput">true</Boolean>
+            </record>
+            <record name="401" javaclass="com.wm.util.Values">
+              <value name="statusCode">401</value>
+              <value name="description">Access Denied</value>
+              <Boolean name="returnOutput">false</Boolean>
+            </record>
+          </record>
+        </record>
+      </record>
+    </record>
+    <record name="/bridge/{c8yIdOfBridge}" javaclass="com.wm.util.Values">
+      <value name="nsName">jc.philips.c8y:agent</value>
+      <value name="path">/bridge/{c8yIdOfBridge}</value>
+      <null name="suffix"/>
+      <record name="operations" javaclass="com.wm.util.Values">
+        <record name="DELETE" javaclass="com.wm.util.Values">
+          <value name="operationType">DELETE</value>
+          <value name="nsName">/bridge/{c8yIdOfBridge}_DELETE</value>
+          <value name="description">Removes all child devices for the hue bridge associated with the given internal c8y id.
+Will also stop sending metrics and listening for operation updates.</value>
+          <record name="parameters" javaclass="com.wm.util.Values">
+            <record name="c8yIdOfBridge" javaclass="com.wm.util.Values">
+              <value name="name">c8yIdOfBridge</value>
+              <value name="source">PATH</value>
+              <value name="type">STRING</value>
+              <null name="description"/>
+              <Boolean name="isRequired">true</Boolean>
+              <Boolean name="isArray">false</Boolean>
+              <null name="defaultValue"/>
+              <null name="refDefinition"/>
+              <null name="definitionName"/>
+              <Boolean name="includeInRad">true</Boolean>
+            </record>
+          </record>
+          <record name="responses" javaclass="com.wm.util.Values">
+            <record name="200" javaclass="com.wm.util.Values">
+              <value name="statusCode">200</value>
+              <value name="description">OK</value>
+              <Boolean name="returnOutput">true</Boolean>
+            </record>
+            <record name="401" javaclass="com.wm.util.Values">
+              <value name="statusCode">401</value>
+              <value name="description">Access Denied</value>
+              <Boolean name="returnOutput">false</Boolean>
+            </record>
+          </record>
+        </record>
+      </record>
+    </record>
+    <record name="/restart" javaclass="com.wm.util.Values">
+      <value name="nsName">jc.philips.c8y:agent</value>
+      <value name="path">/restart</value>
+      <null name="suffix"/>
+      <record name="operations" javaclass="com.wm.util.Values">
+        <record name="DELETE" javaclass="com.wm.util.Values">
+          <value name="operationType">DELETE</value>
+          <value name="nsName">/restart_DELETE</value>
+          <value name="description">Don't use this, shouldn't be required. The Micro service should instead be restarted. Only use this if you running the agent outside of your cumulocity tenant</value>
+          <record name="responses" javaclass="com.wm.util.Values">
+            <record name="200" javaclass="com.wm.util.Values">
+              <value name="statusCode">200</value>
+              <value name="description">OK</value>
+              <Boolean name="returnOutput">true</Boolean>
+            </record>
+            <record name="401" javaclass="com.wm.util.Values">
+              <value name="statusCode">401</value>
+              <value name="description">Access Denied</value>
+              <Boolean name="returnOutput">false</Boolean>
+            </record>
+          </record>
+        </record>
+      </record>
+    </record>
+    <record name="/bridge/{c8yIdOfBridge}/listener" javaclass="com.wm.util.Values">
+      <value name="nsName">jc.philips.c8y:agent</value>
+      <value name="path">/bridge/{c8yIdOfBridge}/listener</value>
+      <null name="suffix"/>
+      <record name="operations" javaclass="com.wm.util.Values">
+        <record name="GET" javaclass="com.wm.util.Values">
+          <value name="operationType">GET</value>
+          <value name="nsName">/bridge/{c8yIdOfBridge}/listener_GET</value>
+          <value name="description">Returns true if there is currently a long polling thread associated for the indicated device. Long polling is used to ensure that the agent
+can react to operation requests quickly that have been submitted to c8y.
+
+Pending operations for each light are retrieved from c8y and processed by the service 'jc.philips.c8y.agent_._priv:processControlNotification'
+with operations linked to the parent device i.e. their hue bridge.
+
+Listeners for each bridge device are scheduled automatically when this agent is subscribed to, if the bridge is provisioned properly via the 
+service 'jc.philips.c8y.agent_.services:provisionBridge' and no connection errors have been encountered since.
+
+e.g.
+./c8y_Network/provisioned = true
+./c8y_Network/connectionError = false
+
+**NOTE**
+Individual lights and dimmers are not polled directly, only Hue bridges are monitored for operations, hence this request should only
+be used in reference to bridge devices.</value>
+          <array name="requiredDefinitions" type="value" depth="1">
+            <value>/bridge/{c8yIdOfBridge}/listener_GET_$response</value>
+          </array>
+          <record name="parameters" javaclass="com.wm.util.Values">
+            <record name="c8yIdOfBridge" javaclass="com.wm.util.Values">
+              <value name="name">c8yIdOfBridge</value>
+              <value name="source">PATH</value>
+              <value name="type">STRING</value>
+              <null name="description"/>
+              <Boolean name="isRequired">true</Boolean>
+              <Boolean name="isArray">false</Boolean>
+              <null name="defaultValue"/>
+              <null name="refDefinition"/>
+              <null name="definitionName"/>
+              <Boolean name="includeInRad">true</Boolean>
+            </record>
+          </record>
+          <record name="responseParam" javaclass="com.wm.util.Values">
+            <value name="name">reseponse</value>
+            <value name="source">BODY</value>
+            <value name="type">REFERENCE</value>
+            <null name="description"/>
+            <Boolean name="isRequired">true</Boolean>
+            <Boolean name="isArray">false</Boolean>
+            <null name="defaultValue"/>
+            <value name="refDefinition">/bridge/{c8yIdOfBridge}/listener_GET_$response</value>
+            <null name="definitionName"/>
+            <Boolean name="includeInRad">true</Boolean>
+          </record>
+          <record name="responses" javaclass="com.wm.util.Values">
+            <record name="200" javaclass="com.wm.util.Values">
+              <value name="statusCode">200</value>
+              <value name="description">OK</value>
+              <Boolean name="returnOutput">true</Boolean>
+            </record>
+            <record name="401" javaclass="com.wm.util.Values">
+              <value name="statusCode">401</value>
+              <value name="description">Access Denied</value>
+              <Boolean name="returnOutput">false</Boolean>
+            </record>
+          </record>
+        </record>
+      </record>
+    </record>
+  </record>
+  <Boolean name="matchRequestResponsePayloadWithRad">true</Boolean>
+  <null name="radSource"/>
+  <value name="radVersion">1.0</value>
+  <array name="generatedDoctypes" type="record" depth="1">
+  </array>
+  <array name="generatedServices" type="record" depth="1">
+  </array>
+  <array name="generatedRestResources" type="record" depth="1">
+  </array>
+  <array name="resourceNodeNSNames" type="value" depth="1">
+    <value>jc.philips.c8y:agent</value>
+  </array>
+  <Boolean name="addRootElementToResponse">true</Boolean>
+</Values>

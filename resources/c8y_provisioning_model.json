@@ -1,0 +1,43 @@
+{
+  "name": "Philips Lighting",
+  "category": "house",
+  "type": "c8y_Device_Agent",
+  "agent": "philips",
+  "provisioningInput": "oauth2",
+  "infoMessage": "You will need to login into your Hue account in order to give permission to access your hue hub",
+  "defineUrl": "/service/philips-hue/rad/jc.philips:c8y/bridge/{user.id}/definition",
+  "provisioningUrl": "/service/philips-hue/rad/jc.philips:c8y/bridge/{device.id}/provision",
+  "deprovisioningUrl": "/service/philips-hue/rad/jc.philips:c8y/bridge/{device.id}",
+  "providerType": "philips-api",
+  "deviceType": "c8y_Philips",
+  "provisioningProperties": {
+	"properties": [
+	  {
+		"name": "device.id",
+		"source": "id",
+		"required": true
+	  },
+	  {
+		"name": "token",
+		"source": "network.wan.password",
+		"description": "Philips bridge OAuth2 token",
+		"required": true,
+		"type": "oauth2"
+	  },
+	  {
+		"name": "position.lat",
+		"source": "position.latitude",
+		"description": "GPS lat position of device at start",
+		"required": false,
+		"type": "number"
+	  },
+	  {
+		"name": "position.lng",
+		"source": "position.longitude",
+		"description": "GPIS longitude position of device at start",
+		"required": false,
+		"type": "number"
+	  }
+	]
+  }
+}

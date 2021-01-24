@@ -1,0 +1,13 @@
+{
+  "name": "Hue API",
+  "type": "philips-api",
+  "oauth2": {
+	"authorisationUrl": "https://api.meethue.com/oauth2/auth?appid=cumulocity_device_manager&deviceid=c8y&device_name=c8y&response_type=code",
+	"accessToken": "https://api.meethue.com/oauth2/token",
+	"clientId": "N0ZYsYxUk48pQldM3ELKmbdsS4hjrxim",
+	"clientSecret": "jhJldLnHU2pumK2w",
+	"requestUrl": "https://api.meethue.com/bridge/0/config",
+	"requestMethod": "put",
+	"requestPayload": "{\"linkbutton\": true}"
+  }
+}
