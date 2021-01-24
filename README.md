@@ -6,9 +6,30 @@ Developed using the [Software AG webMethods Micro Service Runtime](https://hub.d
 
 This agent uses the [Philips MeetHue API](https://developers.meethue.com)
 
+**Installation**
+
+This source code is a webMethods Micro Service Runtime package and you will need to first install the Software AG Micro Service Runtime or download a docker image.
+
+**local installation**
+If you have an Integration Server or Micro Service Runtime running locally for development purposes, first navigate to your packages directory;
+
+$ cd /<SAG_HOME>/IntegrationServer/packkages
+or
+$ cd /<SAG_HOME>/IntegrationServer/instances/<INSTANCE>/packages
+
+If your packages directory is already under version control
+
+$ git submodule add https://github.com/johnpcarter/c8yPhilipsHueAgent.git c8yPhilipsHueAgent
+
+or if you do have packages directory already git controlled, then simply clone the repository
+
+$ git clone https://github.com/johnpcarter/c8yPhilipsHueAgent.git
+
+Then restart your runtime server and refresh your package browser in Designer.
+
 **Remote authentication required by Philips Hue**
  
- You will need to use the following oauth settings to obtain an oauth 2.0 token for your Hue bridge.
+ You will need to use the following settings to obtain an oauth 2.0 token for your Hue bridge.
   
  *authorization: https://api.meethue.com/oauth2/auth?appid=cumulocity_device_manager&deviceid=c8y&device_name=c8y&response_type=code*
  
