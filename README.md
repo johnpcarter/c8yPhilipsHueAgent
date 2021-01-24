@@ -14,9 +14,9 @@ This source code is a webMethods Micro Service Runtime package and you will need
 
 If you have an Integration Server or Micro Service Runtime running locally for development purposes, first navigate to your packages directory;
 
-*$ cd /<SAG_HOME>/IntegrationServer/packages*  
+*$ cd /${SAG_HOME}/IntegrationServer/packages*  
 or  
-*$ cd /<SAG_HOME>/IntegrationServer/instances/<DEFAULT>/packages*  
+*$ cd /${SAG_HOME}/IntegrationServer/instances/${INSTANCE}/packages*  
 
 If your packages directory is already under version control
 
@@ -29,7 +29,7 @@ or if you are not, then simply clone the repository
 Then download dependent packages
 
 *$ git clone https://github.com/johnpcarter/c8yConnector.git*  
-*$ git clone https://github.com/johnpcarter/JcPublicTools.git* 
+*$ git clone https://github.com/johnpcarter/JcPublicTools.git*  
 
 Then restart your runtime server and refresh your package browser in Designer.
 
@@ -40,7 +40,7 @@ and then update Dockerfile and aclmap_sm.cnf file appropriately.
 
 cd into your directory and download the latest source code
 
-*$ cd <working dir>*  
+*$ cd ${WORKING_DIR}*  
 *$ git clone https://github.com/johnpcarter/c8yPhilipsHueAgent.git*  
 *$ git clone https://github.com/johnpcarter/c8yConnector.git*  
 *$ git clone https://github.com/johnpcarter/JcPublicTools.git*  
