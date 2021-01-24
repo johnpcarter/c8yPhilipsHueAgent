@@ -2,9 +2,13 @@
  # Philips Hue c8y Agent
 
 Cumulocity micro service agent to connect and play with your Philips Hue bridge and lights.
-Developed using the [Software AG webMethods Micro Service Runtime](https://hub.docker.com/_/softwareag-webmethods-microservicesruntime) and available as a docker image.
+Developed using the [Software AG webMethods Micro Service Runtime](https://hub.docker.com/_/softwareag-webmethods-microservicesruntime).
 
 This agent uses the [Philips MeetHue API](https://developers.meethue.com)
+
+The agent provides an onboarding API that is documented via the packages [home directory](http://localhost:5555/c8yPhilipsHueAgent) 
+/c8yPhilipsHueAgent and also documented below. The agent will automatically send metrics and process operations, once your Hue bridge is
+onboarded and registered in your tenant.
 
 **Installation**
 
@@ -78,23 +82,22 @@ You can also use the agent from your own development environment or run the dock
 You will need to set the bootstrap credentials or set the c8y user in your local environment.
 
 From your local environment, run the service '' and either provide your own credentials via the C8Y_TENANT, C8Y_USER and C8Y_PASSWORD inputs 
-or you want to use the app credential provide the C8Y_BOOSTRAP_TENANT, C8Y_BOOTSTRAP_USER and C8Y_BOOTSTRAP_PASSWORD inputs.
+or you want to use the app credential provide the 'C8Y_BOOSTRAP_TENANT', 'C8Y_BOOTSTRAP_USER' and 'C8Y_BOOTSTRAP_PASSWORD' inputs.
 
-If you want to run the docker image indepenently then set the following envioronment variables when starting up the container
+If you want to run the docker image independently then set the following environment variables when starting up the container
 
-*-e C8Y_BOOTSTRAP_TENANT='*'*
-*-e C8Y_BOOTSTRAP_USER*
-*-e C8Y_BOOTSTRAP_PASSWORD*
+*-e C8Y_BOOTSTRAP_TENANT=''*
+*-e C8Y_BOOTSTRAP_USER=''*
+*-e C8Y_BOOTSTRAP_PASSWORD=''*
 
 You can obtain your bootstrap credentials via the following api call
 
 *$ curl "https://<TENTANT_NAME>.cumulocity.com/application/applications/<APP_ID>/bootstrapUser" \
  -u '<YOUR USER>:<YOUR PASSWORD>'*
 
-
 **Remote authentication required by Philips Hue**
- 
- You will need to use the following settings to obtain an oauth 2.0 token for your Hue bridge.
+
+ You will need to use the following settings to obtain an OAuth 2.0 token for your Hue bridge.
   
  *authorization: https://api.meethue.com/oauth2/auth?appid=cumulocity_device_manager&deviceid=c8y&device_name=c8y&response_type=code*
  
@@ -112,10 +115,6 @@ You can obtain your bootstrap credentials via the following api call
   that represents the bridge device that can be posted to c8y.
   2) [post /bridge/{c8yIdOfBridge}/provision](./#/bridge/6060f35b-3d59-402f-a3df-19df2edece0b) to create managed objects for
   all of the lights and switches attached to the bridge. The agent on successful completion will start sending metrics and listening for operations.
-  
-**Uploading to Cumulocity**
-  Refer to [Micro Service SDK Guide](https://cumulocity.com/guides/microservice-sdk/introduction/) to see how to upload this agent to your
-  Cumulocity tenant
   
 **Device Models**
 
