@@ -57,43 +57,40 @@ You can now build your image
 
 *$ docker build .*  
 
-**Starting up the agent**
-
-The docker file can now be run as a remote agent by providing the following environment variables so that the agent can connect to your 
-cumulocity tenant.Refer to the cumulocity documentation concerning [Micro Service Runtime](https://cumulocity.com/guides/microservice-sdk/concept/#microservice-runtime)for more details.
-
-Create your application in your Cumulocity tenant and then set your bootstrap credentials as environment variables when starting up your
-docker image. You can obtain your bootstrap credentials via the following api call
-
-*$ curl "https://<TENTANT_NAME>.cumulocity.com/application/applications/<APP_ID>/bootstrapUser" \
- -u '<YOUR USER>:<YOUR PASSWORD>'*
-
-C8Y_BOOTSTRAP_TENANT
-C8Y_BOOTSTRAP_USER
-C8Y_BOOTSTRAP_PASSWORD
-
-If you are running the agent from your own Server you can set these credentials via the a service call to '' in Designer.
-
-**Uploading the Micro Service to your tenant**
+**Preparing the Micro Service zip file for your tenant**
 
 You will need to export the newly build image as tar file and then zip it with the cumulocity.json file before uploading to your tenant
 
 *$ docker save -o image.tar ${YOUR DOCKER IMAGE}*  
-*$ zip ${c8y_app_name} cumulocity.json image.tar*  
+*$ zip ${c8y_app_name} cumulocity.json image.tar*
 
-To upload the, run the cumulocity-microservice.sh script with the appropriate parameters.
+**Uploading the Micro Service agent to your Cumulocity tenant**
 
-$ /cumulocity-microservice.sh deploy -n ${c8y_app_name} -u ${cumulocity_user} -p ${cumulocity_pwd} -d ${cumulocity_url} -te ${cumulocity_tenant}
+Login in to your Cumulocity tenant and select the "Administration" app, then from the left hand side menu "Applications", "Own Applications" and then click "Add application". Choose "Upload microservice"and select the zip that you created before.
 
-NOTE: You will need to install the JSON processor plugin in order fo the script to run;
+Once uploaded, subscribe to the app in order to start it up and activate it.
 
-Execute the following command to install the JSON processor on Linux systems:
+For more information refer to the Cumulocity documentation on [Micro Service Runtime](https://cumulocity.com/guides/microservice-sdk/concept/#microservice-runtime)
 
-*$ sudo yum install jq*  
+**Starting up the agent remotely**
 
-For macOS, use the following command:
+You can also use the agent from your own development environment or run the docker image outside of your tenant if you wish.
+You will need to set the bootstrap credentials or set the c8y user in your local environment.
 
-*$ brew install jq*  
+From your local environment, run the service '' and either provide your own credentials via the C8Y_TENANT, C8Y_USER and C8Y_PASSWORD inputs 
+or you want to use the app credential provide the C8Y_BOOSTRAP_TENANT, C8Y_BOOTSTRAP_USER and C8Y_BOOTSTRAP_PASSWORD inputs.
+
+If you want to run the docker image indepenently then set the following envioronment variables when starting up the container
+
+*-e C8Y_BOOTSTRAP_TENANT='*'*
+*-e C8Y_BOOTSTRAP_USER*
+*-e C8Y_BOOTSTRAP_PASSWORD*
+
+You can obtain your bootstrap credentials via the following api call
+
+*$ curl "https://<TENTANT_NAME>.cumulocity.com/application/applications/<APP_ID>/bootstrapUser" \
+ -u '<YOUR USER>:<YOUR PASSWORD>'*
+
 
 **Remote authentication required by Philips Hue**
  
