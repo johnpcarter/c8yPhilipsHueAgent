@@ -85,19 +85,20 @@ For more information refer to the Cumulocity documentation on [Micro Service Run
 You can also use the agent from your own development environment or run the docker image outside of your tenant if you wish.
 You will need to set the bootstrap credentials or set the c8y user in your local environment.
 
+You can obtain your bootstrap credentials via the following api call
+
+*$ curl "https://<TENTANT_NAME>.cumulocity.com/application/applications/<APP_ID>/bootstrapUser" \
+ -u '<YOUR_USER>:<YOUR_PASSWORD>'*
+
 From your local environment, run the service '' and either provide your own credentials via the C8Y_TENANT, C8Y_USER and C8Y_PASSWORD inputs 
-or you want to use the app credential provide the 'C8Y_BOOSTRAP_TENANT', 'C8Y_BOOTSTRAP_USER' and 'C8Y_BOOTSTRAP_PASSWORD' inputs.
+or you want to use the app credential provide the 'C8Y_BOOSTRAP_TENANT', 'C8Y_BOOTSTRAP_USER' and 'C8Y_BOOTSTRAP_PASSWORD' inputs. Reload the
+package afterwards if you want the package to automatically send metrics and process operations for your lights.
 
 If you want to run the docker image independently then set the following environment variables when starting up the container
 
 *-e C8Y_BOOTSTRAP_TENANT=''*
 *-e C8Y_BOOTSTRAP_USER=''*
 *-e C8Y_BOOTSTRAP_PASSWORD=''*
-
-You can obtain your bootstrap credentials via the following api call
-
-*$ curl "https://<TENTANT_NAME>.cumulocity.com/application/applications/<APP_ID>/bootstrapUser" \
- -u '<YOUR_USER>:<YOUR_PASSWORD>'*
 
 **Remote authentication required by Philips Hue**
 
@@ -115,9 +116,9 @@ You can obtain your bootstrap credentials via the following api call
 
   Once you have your ouath 2.0 token, you can begin the onboarding process for the bridge and its attached lights and switches.
   
-  1) [get /bridge/{name}/definition](./#/bridge/9627a8b7-1332-401b-878e-9fa641f418e4) to query the bridge and obtain a managed object
+  1) *get /bridge/{name}/definition*  
   that represents the bridge device that can be posted to c8y.
-  2) [post /bridge/{c8yIdOfBridge}/provision](./#/bridge/6060f35b-3d59-402f-a3df-19df2edece0b) to create managed objects for
+  2) *post /bridge/{c8yIdOfBridge}/provision*  
   all of the lights and switches attached to the bridge. The agent on successful completion will start sending metrics and listening for operations.
   
 **Device Models**
