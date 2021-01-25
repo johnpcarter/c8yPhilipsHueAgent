@@ -117,7 +117,7 @@ If you want to run the docker image independently then set the following environ
   Once you have your ouath 2.0 token, you can begin the onboarding process for the bridge and its attached lights and switches.
   
   1) *get /bridge/{name}/definition*  
-  that represents the bridge device that can be posted to c8y.
+  
   2) *post /bridge/{c8yIdOfBridge}/provision*  
   all of the lights and switches attached to the bridge. The agent on successful completion will start sending metrics and listening for operations.
   
