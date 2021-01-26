@@ -90,9 +90,13 @@ You can obtain your bootstrap credentials via the following api call
 *$ curl "https://<TENTANT_NAME>.cumulocity.com/application/applications/<APP_ID>/bootstrapUser" \
  -u '<YOUR_USER>:<YOUR_PASSWORD>'*
 
-From your local environment, run the service '' and either provide your own credentials via the C8Y_TENANT, C8Y_USER and C8Y_PASSWORD inputs 
-or you want to use the app credential provide the 'C8Y_BOOSTRAP_TENANT', 'C8Y_BOOTSTRAP_USER' and 'C8Y_BOOTSTRAP_PASSWORD' inputs. Reload the
-package afterwards if you want the package to automatically send metrics and process operations for your lights.
+From your local environment, run the service
+
+*jc.cumulocity.tools.app:setCredentials*  
+
+and either provide your own credentials via the C8Y_TENANT, C8Y_USER and C8Y_PASSWORD inputs, or you want to use the app credential provide 
+the 'C8Y_BOOSTRAP_TENANT', 'C8Y_BOOTSTRAP_USER' and 'C8Y_BOOTSTRAP_PASSWORD' inputs. Reload the package afterwards if you want the package to automatically 
+send metrics and process operations for your lights.
 
 If you want to run the docker image independently then set the following environment variables when starting up the container
 
@@ -117,9 +121,14 @@ If you want to run the docker image independently then set the following environ
   Once you have your ouath 2.0 token, you can begin the onboarding process for the bridge and its attached lights and switches.
   
   1) *get /bridge/{name}/definition*  
-  
+  Queries your hue bridge and returns a c8y managed object representing it. If the managed object has not yet been posted (id will be null/nil and 
+  post it to c8y.
   2) *post /bridge/{c8yIdOfBridge}/provision*  
-  all of the lights and switches attached to the bridge. The agent on successful completion will start sending metrics and listening for operations.
+  Queries the hue bridge via the user and token associated with the managed object created in the previous step and creates child device for all of the lights and switches 
+  attached to the bridge. On successful completion the agent will start sending metrics and listening for operations.
+  
+  Supported operations are '*c8y_Relay*' and '*c8y_Property_dimmer'. Refer to package's [online documentation](http://localhost:5555/c8yPhilipsHueAgent) 
+  for detailed documentation on its API.
   
 **Device Models**
 
