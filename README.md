@@ -128,7 +128,7 @@ If you want to run the docker image independently then set the following environ
   attached to the bridge. On successful completion the agent will start sending metrics and listening for operations.
   
   Supported operations are '*c8y_Relay*' and '*c8y_Property_dimmer*'. Refer to this package's [online documentation](http://localhost:5555/c8yPhilipsHueAgent) 
-  for detailed documentation on its API, or you can it view it [via githack]https://raw.githack.com/johnpcarter/c8yPhilipsHueAgent/tree/main/pub)
+  for detailed documentation on its API, or you can it view it [via githack](https://raw.githack.com/johnpcarter/c8yPhilipsHueAgent/tree/main/pub)
   
 **Agent Description**
 
