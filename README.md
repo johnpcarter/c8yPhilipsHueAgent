@@ -6,9 +6,9 @@ Developed using the [Software AG webMethods Micro Service Runtime](https://hub.d
 
 This agent uses the [Philips MeetHue API](https://developers.meethue.com)
 
-The agent provides an onboarding API that is documented via the packages [home directory](https://raw.githack.com/johnpcarter/c8yPhilipsHueAgent/main/pub/index.html)
-/c8yPhilipsHueAgent and also documented below. The agent will automatically send metrics and process operations, once your Hue bridge is
-onboarded and registered in your tenant.
+The agent provides an onboarding API that is documented via the packages own home directory accessible once you have installed the package via /c8yPhilipsHueAgent, 
+[online](https://raw.githack.com/johnpcarter/c8yPhilipsHueAgent/main/pub/index.html) and also briefly documented below. The agent will automatically send metrics and process operations,
+once the agent has been deployed and you have successfully onboarded a Hue bridge.
 
 **Installation**
 
