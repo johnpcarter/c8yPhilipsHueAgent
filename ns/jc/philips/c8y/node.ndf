@@ -4,7 +4,7 @@
   <value name="node_type">restDescriptor</value>
   <value name="node_subtype">restv2Descriptor</value>
   <value name="node_nsName">jc.philips:c8y</value>
-  <value name="node_pkg">JcPhilipsHueC8yAgent</value>
+  <value name="node_pkg">c8yPhilipsHueAgent</value>
   <value name="node_comment"># C8y Philips Hue Agent #
 
 Cumulocity micro service agent to connect and play with your Philips Hue bridge and lights. 
