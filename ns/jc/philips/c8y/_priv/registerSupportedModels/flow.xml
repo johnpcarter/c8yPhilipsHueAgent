@@ -532,7 +532,7 @@
   <DATA ENCODING="XMLValues" I18N="true">
 
 <Values version="2.0">
-  <value name="xml">./packages/JcPhilipsHueC8yAgent/resources/philips-hue_supplier.json</value>
+  <value name="xml">./packages/c8yPhilipsHueAgent/resources/philips-hue_supplier.json</value>
   <record name="type" javaclass="com.wm.util.Values">
     <value name="node_type">record</value>
     <value name="node_subtype">unknown</value>
@@ -1515,7 +1515,7 @@
   <DATA ENCODING="XMLValues" I18N="true">
 
 <Values version="2.0">
-  <value name="xml">./packages/JcPhilipsHueC8yAgent/resources/device_models</value>
+  <value name="xml">./packages/c8yPhilipsHueAgent/resources/device_models</value>
   <record name="type" javaclass="com.wm.util.Values">
     <value name="node_type">record</value>
     <value name="node_subtype">unknown</value>
@@ -1690,7 +1690,7 @@
   <DATA ENCODING="XMLValues" I18N="true">
 
 <Values version="2.0">
-  <value name="xml">./packages/JcPhilipsHueC8yAgent/resources/device_models/%files%</value>
+  <value name="xml">./packages/c8yPhilipsHueAgent/resources/device_models/%files%</value>
   <record name="type" javaclass="com.wm.util.Values">
     <value name="node_type">record</value>
     <value name="node_subtype">unknown</value>
