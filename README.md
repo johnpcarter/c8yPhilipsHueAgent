@@ -137,7 +137,7 @@ If you want to run the docker image independently then set the following environ
   You can update these default settings by modifying the resource files [c8y_provisioning_model.json](https://github.com/johnpcarter/c8yPhilipsHueAgent/blob/main/resources/c8y_provisioning_model.json),
   and [c8y_default_provider.json](https://github.com/johnpcarter/c8yPhilipsHueAgent/blob/main/resources/c8y_default_provider.json) or by adding your own managed objects via the c8y API.
   
-  These managed objects are leveraged by my own iOS "Device Management" app to ensure seamless device onboarding with required hard-coding.
+  These managed objects are leveraged by my own iOS "Device Management" app to ensure seamless device onboarding without requiring any hard-coding.
     
 **Device Models**
 
