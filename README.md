@@ -127,8 +127,8 @@ If you want to run the docker image independently then set the following environ
   Queries the hue bridge via the user and token associated with the managed object created in the previous step and creates child device for all of the lights and switches 
   attached to the bridge. On successful completion the agent will start sending metrics and listening for operations.
   
-  Supported operations are '*c8y_Relay*' and '*c8y_Property_dimmer*'. Refer to this package's [online documentation](http://localhost:5555/c8yPhilipsHueAgent) 
-  for detailed documentation on its API, or you can it view it [via githack](https://raw.githack.com/johnpcarter/c8yPhilipsHueAgent/main/pub/index.html)
+  Supported operations are '*c8y_Relay*' and '*c8y_Property_dimmer*'. Refer to the packages own home directory [/c8yPhilipsHueAgent](http://localhost:5555/c8yPhilipsHueAgent) 
+  for detailed documentation on its API, or you can it view it here [online](https://raw.githack.com/johnpcarter/c8yPhilipsHueAgent/main/pub/index.html)
   
 **Agent Configuration files**
 
