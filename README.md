@@ -76,6 +76,10 @@ You will need to export the newly build image as a tar file and then zip it with
 
 Login in to your Cumulocity tenant and select the "Administration" app, then from the left hand side menu "Applications", "Own Applications" and then click "Add application". Choose "Upload microservice"and select the zip that you created before.
 
+Alternatively you can upload the image from the command line using the 'cumulocity-microservice.sh' script with
+
+*$ ./cumulocity-microservice.sh deploy -n philips-hue-agent -u \*\*\\*\*\* -p \*\*\*\*\*\* -d https://www.cumulocity.com -te <TENANT_ID>*  
+
 Once uploaded, subscribe to the app in order to start it up and activate it.
 
 For more information refer to the Cumulocity documentation on [Micro Service Runtime](https://cumulocity.com/guides/microservice-sdk/concept/#microservice-runtime)
