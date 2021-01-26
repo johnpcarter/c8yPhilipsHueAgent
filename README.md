@@ -130,7 +130,7 @@ If you want to run the docker image independently then set the following environ
   Supported operations are '*c8y_Relay*' and '*c8y_Property_dimmer*'. Refer to this package's [online documentation](http://localhost:5555/c8yPhilipsHueAgent) 
   for detailed documentation on its API, or you can it view it [via githack](https://raw.githack.com/johnpcarter/c8yPhilipsHueAgent/main/pub/index.html)
   
-**Agent Description**
+**Agent Configuration files**
 
   This agent also defines a managed object of type '**c8y_Device_Agent**' in Cumulocity, which formally defines the above onboarding process so that third party apps
   can leverage this agent without hard-coding. The OAuth 2.0 client id/secret parameters are also defined via a managed object with the type '**philips-api**'.
