@@ -1,0 +1,16 @@
+{
+  "type": "device_Supplier",
+  "name": "philips",
+  "c8y_Notes": "Philips Hue is a line of color changing LED lamps and white bulbs which can be controlled wirelessly.",
+  "models": {
+	"BSB002": "Hue Bridge",
+	"LCT003": "Color spot light",
+	"LCT010": "Color light bulb",
+	"LLC011": "Bloom table lamp",
+	"LST002": "Light Strip",
+	"LCT012": "Color candle",
+	"LTW013": "Ambiance spot",
+	"RWL021": "Dimmer switch",
+	"SML001": "Motion & temperature sensor"
+  }
+}

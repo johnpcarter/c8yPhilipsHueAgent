@@ -114,26 +114,32 @@ If you want to run the docker image independently then set the following environ
   
  You can register for a client id/secret via the developer site above and also find documentation on how to authenticate and obtain a token
  
- [Remote API Quick Stark Guide](https://developers.meethue.com/develop/hue-api/remote-api-quick-start-guide)
+ [Remote API Quick Start Guide](https://developers.meethue.com/develop/hue-api/remote-api-quick-start-guide)
  
 **Device Onboarding**
 
-  Once you have your ouath 2.0 token, you can begin the onboarding process for the bridge and its attached lights and switches.
+  Once you have your OAuth 2.0 token, you can begin the onboarding process for the bridge and its attached lights and switches.
   
   1) *get /bridge/{name}/definition*  
-  Queries your hue bridge and returns a c8y managed object representing it. If the managed object has not yet been posted (id will be null/nil and 
+  Queries your hue bridge and returns a c8y managed object representing it. If the managed object has not yet been posted (id will be null/nil) then 
   post it to c8y.
   2) *post /bridge/{c8yIdOfBridge}/provision*  
   Queries the hue bridge via the user and token associated with the managed object created in the previous step and creates child device for all of the lights and switches 
   attached to the bridge. On successful completion the agent will start sending metrics and listening for operations.
   
-  Supported operations are '*c8y_Relay*' and '*c8y_Property_dimmer'. Refer to package's [online documentation](http://localhost:5555/c8yPhilipsHueAgent) 
+  Supported operations are '*c8y_Relay*' and '*c8y_Property_dimmer'. Refer to this package's [online documentation](http://localhost:5555/c8yPhilipsHueAgent) 
   for detailed documentation on its API.
   
+**Agent Description**
+
+  This agent also defines a managed object of type '**c8y_Device_Agent**' in Cumulocity, which formally defines the above onboarding process so that third party apps
+  can leverage this agent without hard-coding. The OAuth 2.0 client id/secret parameters are also defined via a managed object with the type '**philips-api**'.
+  You can update these default settings by modifying the resource files [c8y_provisioning_model.json](https://github.com/johnpcarter/c8yPhilipsHueAgent/blob/main/resources/c8y_provisioning_model.json),
+  and [c8y_default_provider.json](https://github.com/johnpcarter/c8yPhilipsHueAgent/blob/main/resources/c8y_default_provider.json) or by adding your own managed objects via the c8y API.
+  
+  These managed objects are leveraged by my own iOS "Device Management" app to ensure seamless device onboarding with required hard-coding.
+    
 **Device Models**
 
-  This agent also defines a managed object of type '**c8y_Device_Agent**' in Cumulocity. This models allows the iOS Cumulocity Device Management app
-  to provision Hue Bridges without having to hard-code this API. The OAuth 2.0 client id and secret are registered using the type '**philips-api**'. 
-  You can add your own credentials to Cumulocity by posting an equivalent object to Cumulocity. The iOS app will allow the user to choose between them.
-  
-  Device models and images for Philips hue assets are also registered via the types '**device_Supplier**' and '**device_Model**' respectively.
+  Device models and images for Philips hue assets are also registered via the types '**device_Supplier**' and '**device_Model**' respectively, which can be found at 
+  [philips-hue_supplier.json](https://github.com/johnpcarter/c8yPhilipsHueAgent/blob/main/resources/philips-hue_supplier.json) and [device_models](https://github.com/johnpcarter/c8yPhilipsHueAgent/blob/main/resources/device_models)
