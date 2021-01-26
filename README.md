@@ -78,9 +78,9 @@ Login in to your Cumulocity tenant and select the "Administration" app, then fro
 
 Alternatively you can upload the image from the command line using the 'cumulocity-microservice.sh' script with
 
-*$ ./cumulocity-microservice.sh deploy -n philips-hue-agent -u \*\*\\*\*\* -p \*\*\*\*\*\* -d https://www.cumulocity.com -te <TENANT_ID>*  
+*$ ./cumulocity-microservice.sh deploy -n philips-hue-agent -u <YOUR_LOGIN> -p <YOUR_PASSWORD> -d https://www.cumulocity.com -te <TENANT_ID>*  
 
-Once uploaded, subscribe to the app in order to start it up and activate it.
+Once uploaded, make sure that you subscribe to the app in order to start it up and activate it.
 
 For more information refer to the Cumulocity documentation on [Micro Service Runtime](https://cumulocity.com/guides/microservice-sdk/concept/#microservice-runtime)
 
