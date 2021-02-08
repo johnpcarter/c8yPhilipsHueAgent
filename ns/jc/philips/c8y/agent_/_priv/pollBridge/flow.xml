@@ -1428,6 +1428,9 @@
 
 <MAPCOPY FROM="/config;4;0;jc.philips.docs:Config/swversion;1;0" TO="/object(0);4;0;jc.cumulocity.tools.inventory.docs:ManagedObject/c8y_Firmware;2;0/version;1;0">
 </MAPCOPY>
+
+<MAPCOPY FROM="/hubInfo;4;0;jc.cumulocity.tools.inventory.docs:ManagedObject/id;1;0" TO="/object;4;0;jc.cumulocity.tools.inventory.docs:ManagedObject/id;1;0">
+</MAPCOPY>
 </MAP>
 
 <MAP MODE="OUTPUT">
@@ -6733,7 +6736,7 @@
         <value name="node_subtype">unknown</value>
         <value name="is_public">false</value>
         <value name="field_name">temp</value>
-        <value name="field_type">object</value>
+        <value name="field_type">string</value>
         <value name="field_dim">0</value>
         <value name="nillable">true</value>
         <value name="form_qualified">false</value>
@@ -6744,7 +6747,7 @@
         <value name="node_subtype">unknown</value>
         <value name="is_public">false</value>
         <value name="field_name">temp</value>
-        <value name="field_type">string</value>
+        <value name="field_type">object</value>
         <value name="field_dim">0</value>
         <value name="nillable">true</value>
         <value name="form_qualified">false</value>
