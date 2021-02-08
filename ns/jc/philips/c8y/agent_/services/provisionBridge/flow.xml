@@ -6223,7 +6223,7 @@
 
   <!-- nodes -->
 
-<INVOKE TIMEOUT="" SERVICE="jc.cumulocity.tools.notifications:subscribeToControlUpdates" VALIDATE-IN="$none" VALIDATE-OUT="$none">
+<INVOKE TIMEOUT="" SERVICE="jc.cumulocity.tools.notifications:subscribeToOperationUpdates" VALIDATE-IN="$none" VALIDATE-OUT="$none">
   <COMMENT></COMMENT>
 
   <!-- nodes -->
