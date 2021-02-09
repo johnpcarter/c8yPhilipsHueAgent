@@ -13,7 +13,7 @@
 	"preferredMetric": "brightness",
 	"datapoints": [
 	  {
-		"key": "brightness",
+		"fragment": "brightness",
 		"series": "brightness",
 		"label": "Brightness",
 		"aggregationType": "MINUTELY",

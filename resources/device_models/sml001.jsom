@@ -13,7 +13,7 @@
 	"preferredMetric": "Temperature",
 	"datapoints": [
 	  {
-		"key": "Temperature",
+		"fragment": "Temperature",
 		"series": "T",
 		"label": "Temperature",
 		"aggregationType": "MINUTELY",
@@ -22,7 +22,7 @@
 		"max": 40
 	  },
 	  {
-		"key": "Humidity",
+		"fragment": "Humidity",
 		"series": "h",
 		"label": "Humidity",
 		"aggregationType": "MINUTELY",

@@ -14,7 +14,7 @@
 	"preferredSeries": "%",
 	"datapoints": [
 	  {
-		"key": "active",
+		"fragment": "active",
 		"series": "%",
 		"label": "Active",
 		"min": 0,
