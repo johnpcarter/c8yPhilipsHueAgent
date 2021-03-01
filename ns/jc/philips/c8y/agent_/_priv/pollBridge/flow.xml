@@ -756,10 +756,10 @@
 
   <!-- nodes -->
 
-<MAPCOPY FROM="/hubInfo;4;0;jc.cumulocity.tools.inventory.docs:ManagedObject/c8y_Network;4;0;jc.cumulocity.tools.inventory.docs:Network/instance;1;0" TO="/user;1;0">
+<MAPCOPY FROM="/hubInfo;4;0;jc.cumulocity.tools.inventory.docs:ManagedObject/c8y_Network;4;0;jc.cumulocity.tools.inventory.docs:Network/c8y_WAN;2;0/password;1;0" TO="/token;1;0">
 </MAPCOPY>
 
-<MAPCOPY FROM="/hubInfo;4;0;jc.cumulocity.tools.inventory.docs:ManagedObject/c8y_Network;4;0;jc.cumulocity.tools.inventory.docs:Network/c8y_WAN;2;0/password;1;0" TO="/token;1;0">
+<MAPCOPY FROM="/hubInfo;4;0;jc.cumulocity.tools.inventory.docs:ManagedObject/c8y_Network;4;0;jc.cumulocity.tools.inventory.docs:Network/c8y_WAN;2;0/username;1;0" TO="/user;1;0">
 </MAPCOPY>
 </MAP>
 
