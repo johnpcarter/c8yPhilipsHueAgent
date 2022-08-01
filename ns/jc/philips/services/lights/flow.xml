@@ -6,7 +6,7 @@
   <!-- nodes -->
 
 <MAP TIMEOUT="" MODE="STANDALONE">
-  <COMMENT></COMMENT>
+  <COMMENT>set default id</COMMENT>
   <MAPTARGET>
 
 <Values version="2.0">
@@ -135,7 +135,7 @@
 </MAP>
 
 <INVOKE TIMEOUT="" SERVICE="jc.cumulocity.tools._priv:http" VALIDATE-IN="$none" VALIDATE-OUT="$none">
-  <COMMENT></COMMENT>
+  <COMMENT>api call to c8y</COMMENT>
 
   <!-- nodes -->
 
@@ -709,7 +709,7 @@
   <!-- nodes -->
 
 <INVOKE NAME="%id% == &#39;&#39;" TIMEOUT="" SERVICE="jc.tools.pub.list:convertChildElementsToDocList" VALIDATE-IN="$none" VALIDATE-OUT="$none">
-  <COMMENT></COMMENT>
+  <COMMENT>translate results</COMMENT>
 
   <!-- nodes -->
 
@@ -1724,7 +1724,7 @@
 </BRANCH>
 
 <MAP TIMEOUT="" MODE="STANDALONE">
-  <COMMENT></COMMENT>
+  <COMMENT>clean up</COMMENT>
   <MAPTARGET>
 
 <Values version="2.0">
